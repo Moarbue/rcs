@@ -23,7 +23,8 @@ Vec3 vec3_scale(Vec3 v, float s);
 Vec3 vec3_div(Vec3 a, Vec3 b);
 Vec3 vec3_divs(Vec3 v, float s);
 
-Vec3 vec3_negate(Vec3 v);
+void vec3_negate(Vec3 *v);
+Vec3 vec3_negate_to(Vec3 v);
 void vec3_normalize(Vec3 *v);
 Vec3 vec3_normalize_to(Vec3 v);
 Vec3 vec3_cross(Vec3 a, Vec3 b);

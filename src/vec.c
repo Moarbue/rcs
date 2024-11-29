@@ -1,9 +1,6 @@
 #include "vec.h"
 #include "smath.h"
 
-#include <float.h>
-#include <math.h>
-
 // Create a Vec3 from x, y and z values
 Vec3 vec3(float x, float y, float z)
 {
@@ -126,8 +123,14 @@ Vec3 vec3_divs(Vec3 v, float s)
     );
 }
 
+// negate a Vec3
+void vec3_negate(Vec3 *v)
+{
+    *v = vec3_negate_to(*v);
+}
+
 // Negate a Vec3, res = -v
-Vec3 vec3_negate(Vec3 v)
+Vec3 vec3_negate_to(Vec3 v)
 {
     return vec3(-v.x, -v.y, -v.z);
 }
