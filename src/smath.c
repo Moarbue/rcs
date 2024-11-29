@@ -1,8 +1,5 @@
 #include "smath.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 // Convert degrees to radians
 float rad(float deg)
 {
@@ -37,6 +34,26 @@ float max(float a, float b)
 
 // Clamp val from minVal to maxVal
 float clamp(float val, float minVal, float maxVal)
+{
+    return min(max(val, minVal), maxVal);
+}
+
+// Same as min but for int
+int imin(int a, int b)
+{
+    if (a < b) return a;
+    return b;
+}
+
+// Same as max but for int
+int imax(int a, int b)
+{
+    if (a > b) return a;
+    return b;
+}
+
+// Same as clamp but for int
+int iclamp(int val, int minVal, int maxVal)
 {
     return min(max(val, minVal), maxVal);
 }
