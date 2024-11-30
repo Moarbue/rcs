@@ -12,7 +12,8 @@ OBJ := $(BIN_DIR)/main.o 	\
 	   $(BIN_DIR)/vec.o		\
 	   $(BIN_DIR)/mat.o		\
 	   $(BIN_DIR)/quat.o	\
-	   $(BIN_DIR)/color.o
+	   $(BIN_DIR)/color.o	\
+	   $(BIN_DIR)/logging.o
 
 .PHONY: all mkbindir cpshaders clean
 
