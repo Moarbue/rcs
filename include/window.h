@@ -6,16 +6,16 @@
 typedef void (* Key_Callback)(int key, int action, int mods);
 typedef void (* Framebuffer_Size_Callback)(int width, int height);
 
-void  init_window(int width, int height, const char *title, int fullscreen);
-void  set_key_callback(Key_Callback callback);
-int   is_fullscreen(void);
-void  set_fullscreen(int val);
-void  toggle_fullscreen(void);
-void  set_window_should_close(int val);
+void  window_init(int width, int height, const char *title, int fullscreen);
+void  window_set_key_callback(Key_Callback callback);
+int   window_is_fullscreen(void);
+void  window_set_fullscreen(int val);
+void  window_toggle_fullscreen(void);
+void  window_set_should_close(int val);
 int   window_should_close(void);
-void  clear_window(Color c);
-float get_frame_time(void);
-void  close_window(void);
+void  window_clear(Color c);
+float window_get_frame_time(void);
+void  window_close(void);
 
 
 // straight out of GLFW, just for convenience

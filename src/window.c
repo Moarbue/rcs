@@ -29,7 +29,7 @@ void framebuffer_size_callback(GLFWwindow *win, int width, int height)
     glfwSwapBuffers(window.win);
 }
 
-void init_window(int width, int height, const char *title, int fullscreen)
+void window_init(int width, int height, const char *title, int fullscreen)
 {
     int version;
     GLint major_version, minor_version;
@@ -59,9 +59,7 @@ void init_window(int width, int height, const char *title, int fullscreen)
     glfwGetWindowSize(window.win, &window.width, &window.height);
     glfwGetWindowPos(window.win, &window.x, &window.y);
 
-    if (fullscreen) {
-        set_fullscreen(1);
-    }
+    window_set_fullscreen(fullscreen);
 
     glfwMakeContextCurrent(window.win);
     // TODO: Maybe let user set framebuffer-size callback?
@@ -84,7 +82,7 @@ void init_window(int width, int height, const char *title, int fullscreen)
     glDepthMask(GL_TRUE);
 }
 
-void set_key_callback(Key_Callback callback)
+void window_set_key_callback(Key_Callback callback)
 {
     window.kcallback = callback;
     glfwSetKeyCallback(window.win, key_callback_wrapper);
@@ -92,16 +90,16 @@ void set_key_callback(Key_Callback callback)
     log_info("Set key callback successfully");
 }
 
-int is_fullscreen(void)
+int window_is_fullscreen(void)
 {
     return (glfwGetWindowMonitor(window.win) != NULL);
 }
 
-void set_fullscreen(int val)
+void window_set_fullscreen(int val)
 {
     GLFWvidmode *mode;
 
-    if (val == is_fullscreen()) return;
+    if (val == window_is_fullscreen()) return;
 
     if (val) {
         // backup size and position
@@ -116,14 +114,14 @@ void set_fullscreen(int val)
     }
 }
 
-void toggle_fullscreen(void)
+void window_toggle_fullscreen(void)
 {
-    set_fullscreen(
-        !is_fullscreen()
+    window_set_fullscreen(
+        !window_is_fullscreen()
     );
 }
 
-void set_window_should_close(int val)
+void window_set_should_close(int val)
 {
     // TODO: maybe check if 0 is GLFW_FALSE ?
     glfwSetWindowShouldClose(window.win, val);
@@ -140,14 +138,14 @@ int window_should_close(void)
     return glfwWindowShouldClose(window.win);
 }
 
-void clear_window(Color c)
+void window_clear(Color c)
 {
     // TODO: maybe implemnt set_clear_color() ?
     glClearColor(c.r, c.g, c.b, c.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-float get_frame_time(void)
+float window_get_frame_time(void)
 {
     float now, dt;
     static float last_time = 0.0f;
@@ -160,7 +158,7 @@ float get_frame_time(void)
     return dt;
 }
 
-void close_window(void)
+void window_close(void)
 {
     glfwDestroyWindow(window.win);
     glfwTerminate();
