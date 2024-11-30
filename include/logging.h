@@ -2,6 +2,7 @@
 #define _LOGGING_H_
 
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef enum {
     LOG_DEBUG,
@@ -11,10 +12,14 @@ typedef enum {
     LOG_NONE
 } Logging_Level;
 
-#define log_debug(fmt, ...)   log_message(LOG_DEBUG,   __FILE__, __LINE__, fmt, __VA_ARGS__)
-#define log_info(fmt, ...)    log_message(LOG_INFO,    __FILE__, __LINE__, fmt, __VA_ARGS__)
-#define log_warning(fmt, ...) log_message(LOG_WARNING, __FILE__, __LINE__, fmt, __VA_ARGS__)
-#define log_error(fmt, ...)   log_message(LOG_ERROR,   __FILE__, __LINE__, fmt, __VA_ARGS__)
+#define log_debug(fmt, ...)   log_message(LOG_DEBUG,   __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define log_info(fmt, ...)    log_message(LOG_INFO,    __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define log_warning(fmt, ...) log_message(LOG_WARNING, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define log_error(fmt, ...)   log_message(LOG_ERROR,   __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define log_error_and_exit(code, fmt, ...) do {                         \
+        log_message(LOG_ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__);   \
+        exit(code);                                                     \
+    } while(0)
 
 void set_logging_level(Logging_Level level);
 void set_logging_stream(FILE *stream);
