@@ -4,10 +4,10 @@
 #include <time.h>
 
 static const char *MESSAGE_TYPE_TO_STRING[] = {
-    [LOG_DEBUG]   = "DEBUG",
-    [LOG_INFO]    = "INFO",
+    [LOG_DEBUG]   = "DEBUG  ",
+    [LOG_INFO]    = "INFO   ",
     [LOG_WARNING] = "WARNING",
-    [LOG_ERROR]   = "ERROR",
+    [LOG_ERROR]   = "ERROR  ",
 };
 
 FILE *f = NULL;
