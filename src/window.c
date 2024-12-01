@@ -1,6 +1,6 @@
 #include "window.h"
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "logging.h"
 
@@ -88,7 +88,7 @@ void window_init(int width, int height, const char *title, int fullscreen)
 
     log_info("Loading OpenGL functions...");
 
-    version = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    version = gladLoadGL((GLADloadfunc)glfwGetProcAddress);
     if (version == GL_FALSE) {
         log_error_and_exit(1, "Failed to load OpenGL functions");
     }

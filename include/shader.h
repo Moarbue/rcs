@@ -1,7 +1,7 @@
 #ifndef _SHADER_H_
 #define _SHADER_H_
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 #ifndef SHADER_MAX_UNIFORMS
 #   define SHADER_MAX_UNIFORMS 10
