@@ -33,12 +33,13 @@ void window_init(int width, int height, const char *title, int fullscreen)
 {
     int version;
     GLint major_version, minor_version;
+    GLFWvidmode *mode;
 
     if (glfwInit() == GLFW_FALSE) {
         log_error_and_exit(1, "Failed to initialize GLFW");
     }
 
-    log_info("Initialized GLFW successfully");
+    log_info("Initialized GLFW");
 
     // Minimum supported version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -53,17 +54,25 @@ void window_init(int width, int height, const char *title, int fullscreen)
         log_error_and_exit(1, "Failed to create window, width = %d height = %d fullscreen = %s", width, height, fullscreen ? "true" : "false");
     }
 
-    log_info("Created window successfully, width = %d height = %d fullscreen = %s", width, height, fullscreen ? "true" : "false");
-
     window.mon = glfwGetPrimaryMonitor();
+    mode       = (GLFWvidmode *)glfwGetVideoMode(window.mon);
+
     glfwGetWindowSize(window.win, &window.width, &window.height);
     glfwGetWindowPos(window.win, &window.x, &window.y);
+
+    if (fullscreen) {
+        log_info("Created window, width = %d height = %d fullscreen = true", mode->width, mode->height);
+    } else {
+        log_info("Created window, width = %d height = %d fullscreen = false", window.width, window.height);
+    }
 
     window_set_fullscreen(fullscreen);
 
     glfwMakeContextCurrent(window.win);
     // TODO: Maybe let user set framebuffer-size callback?
     glfwSetFramebufferSizeCallback(window.win, framebuffer_size_callback);
+
+    log_info("Loading OpenGL functions...");
 
     version = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     if (version == GL_FALSE) {
@@ -73,7 +82,7 @@ void window_init(int width, int height, const char *title, int fullscreen)
     glGetIntegerv(GL_MAJOR_VERSION, &major_version);
     glGetIntegerv(GL_MINOR_VERSION, &minor_version);
 
-    log_info("Successfuly loaded OpenGL functions, using version %d.%d", major_version, minor_version);
+    log_info("Finished loading OpenGL functions, using version %d.%d", major_version, minor_version);
 
     // 3D Options
     glEnable(GL_CULL_FACE);
@@ -87,7 +96,7 @@ void window_set_key_callback(Key_Callback callback)
     window.kcallback = callback;
     glfwSetKeyCallback(window.win, key_callback_wrapper);
 
-    log_info("Set key callback successfully");
+    log_info("Registered key callback for window");
 }
 
 int window_is_fullscreen(void)
@@ -109,8 +118,12 @@ void window_set_fullscreen(int val)
         mode = (GLFWvidmode *) glfwGetVideoMode(window.mon);
 
         glfwSetWindowMonitor(window.win, window.mon, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+
+        log_debug("Set window to fullscreen");
     } else {
         glfwSetWindowMonitor(window.win, NULL, window.x, window.y, window.width, window.height, GLFW_DONT_CARE);
+
+        log_debug("Set window to windowed mode");
     }
 }
 
@@ -126,7 +139,7 @@ void window_set_should_close(int val)
     // TODO: maybe check if 0 is GLFW_FALSE ?
     glfwSetWindowShouldClose(window.win, val);
 
-    log_info("Set window-should-close option to %s", val ? "true" : "false");
+    log_debug("Set window-should-close option to %s", val ? "true" : "false");
 }
 
 int window_should_close(void)
@@ -163,6 +176,6 @@ void window_close(void)
     glfwDestroyWindow(window.win);
     glfwTerminate();
 
-    log_info("Closed window successfully");
-    log_info("Terminated GLFW successfully");
+    log_info("Closing window...");
+    log_info("Terminating GLFW...");
 }

@@ -19,14 +19,14 @@ char *read_file(const char *path)
         return NULL;
     }
 
+    log_info("Opening file \'%s\'...", path);
+
     // open file
     f = fopen(path, "rb");
     if (f == NULL) {
         log_error("Failed to open file \'%s\': %s", path, strerror(errno));
         return NULL;
     }
-
-    log_info("Successfully opened file \'%s\'", path);
 
     // seek to end of file
     ret = fseek(f, 0, SEEK_END);
@@ -60,7 +60,7 @@ char *read_file(const char *path)
 
     // return if size is 0
     if (fsize == 0) {
-        log_warning("Could not read \'%s\', file is empty", path);
+        log_warning("File \'%s\' is empty, aborting read operation...", path);
         fclose(f);
         return content;
     }
@@ -69,9 +69,9 @@ char *read_file(const char *path)
     ret = fread(content, fsize, 1, f);
     if (ret != 1) {
         if (feof(f)) {
-            log_warning("Failed to read whole file content of \'%s\': encounterd EOF character", path);
+            log_warning("Encountered EOF character before file end, aborting read operation...", path);
         } else {
-            log_error("Failed to read file \'%s\'", path);
+            log_error("Read operation failed, \'%s\'", path);
             fclose(f);
             free(content);
             return NULL;
@@ -79,12 +79,12 @@ char *read_file(const char *path)
     }
     fclose(f);
 
-    log_info("Successfully read %ld bytes from \'%s\'", fsize, path);
+    log_info("Read %ld bytes from file", fsize);
 
     return content;
 }
 
-int write_file_mode(const char *path, const char *content, size_t length, const char *mode)
+int write_file(const char *path, const char *content, size_t length)
 {
     FILE *f; 
     size_t ret;
@@ -93,19 +93,19 @@ int write_file_mode(const char *path, const char *content, size_t length, const 
         log_error("Output file cannot be NULL");
         return 0;
     }
+    
+    log_info("Creating file \'%s\'...", path);
 
     // open file
-    f = fopen(path, mode);
+    f = fopen(path, "wb");
     if (f == NULL) {
         log_error("Failed to create file \'%s\': %s", path, strerror(errno));
         return 0;
     }
 
-    log_info("Successfully created file \'%s\'", path);
-
-    // create file but don't write if length is 0
+    // create file but don't write if length is zero
     if (length == 0) {
-        log_warning("Content has length zero", path);
+        log_warning("Content has length zero, aborting write operation...", path);
         fclose(f);
         return 1;
     }
@@ -113,23 +113,53 @@ int write_file_mode(const char *path, const char *content, size_t length, const 
     // write content to file
     ret = fwrite(content, 1, length, f);
     if (ret < length) {
-        log_error("Failed to write whole content to \'%s\', characters written: %zu bytes", path, ret);
+        log_error("Write operation failed, \'%s\', characters written: %zu bytes", path, ret);
         fclose(f);
         return 0;
     }
 
-    log_info("Successfully wrote %zu bytes to \'%s\'", ret, path);
+    log_info("Wrote %zu bytes to \'%s\'", ret, path);
 
     fclose(f);
     return 1;
 }
 
-int write_file(const char *path, const char *content, size_t length)
-{
-    return write_file_mode(path, content, length, "wb");
-}
-
 int append_file(const char *path, const char *content, size_t length)
 {
-    return write_file_mode(path, content, length, "ab");
+    FILE *f; 
+    size_t ret;
+
+    if (path == NULL) {
+        log_error("Output file cannot be NULL");
+        return 0;
+    }
+    
+    log_info("Opening file \'%s\'...", path);
+
+    // open file
+    f = fopen(path, "ab");
+    if (f == NULL) {
+        log_error("Failed to open file \'%s\': %s", path, strerror(errno));
+        return 0;
+    }
+
+    // create file but don't write if length is zero
+    if (length == 0) {
+        log_warning("Content has length zero, aborting append operation...", path);
+        fclose(f);
+        return 1;
+    }
+
+    // write content to file
+    ret = fwrite(content, 1, length, f);
+    if (ret < length) {
+        log_error("Append operation failed, \'%s\', characters appended: %zu bytes", path, ret);
+        fclose(f);
+        return 0;
+    }
+
+    log_info("Appended %zu bytes to \'%s\'", ret, path);
+
+    fclose(f);
+    return 1;
 }

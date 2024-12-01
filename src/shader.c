@@ -14,10 +14,13 @@ Shader_Program shader_new(const char *vertex_path, const char *fragment_path)
     GLint success;
     char info_log[512];
 
-    log_info("Compiling vertex shader from \'%s\'...",   vertex_path);
+    log_info("Compiling vertex shader...");
     vertex_shader   = compile_shader(GL_VERTEX_SHADER,   vertex_path);
-    log_info("Compiling fragment shader from \'%s\'...", fragment_path);
+    log_info("Finished compiling vertex shader");
+
+    log_info("Compiling fragment shader...");
     fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_path);
+    log_info("Finished compiling fragment shader");
 
     log_info("Linking shaders with shader program...");
     prog.id = glCreateProgram();
@@ -30,6 +33,7 @@ Shader_Program shader_new(const char *vertex_path, const char *fragment_path)
         glGetProgramInfoLog(prog.id, 512, NULL, info_log);
         log_error_and_exit(1, "Failed to link program with shaders: %s", info_log);
     }
+    log_info("Finished linking shaders to shader program");
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
@@ -43,7 +47,7 @@ void shader_register_uniform(Shader_Program *prog, const char *name)
 {
     size_t i;
 
-    log_info("Registering uniform \'%s\'", name);
+    log_info("Registering uniform \'%s\'...", name);
 
     i = prog->uniform_count;
     if (i + 1 >= SHADER_MAX_UNIFORMS) {
@@ -55,6 +59,8 @@ void shader_register_uniform(Shader_Program *prog, const char *name)
 
     prog->uniform_locations[i] = glGetUniformLocation(prog->id, name);
     prog->uniform_count++;
+
+    log_info("Finished registering uniform");
 }
 
 void shader_set_uniform_mat4(Shader_Program *prog, const char *name, float *val, GLboolean transpose)
