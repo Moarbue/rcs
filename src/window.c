@@ -11,6 +11,7 @@ typedef struct {
 
     int x, y, width, height;
     GLFWmonitor *mon;
+    GLFWvidmode *mode;
 } Window;
 
 Window window;
@@ -28,12 +29,24 @@ void framebuffer_size_callback(GLFWwindow *win, int width, int height)
     glfwPollEvents();
     glfwSwapBuffers(window.win);
 }
+void window_size_callback(GLFWwindow *win, int width, int height)
+{
+    (void) win;
+
+    // Resizing from fullscreen to windowed or vice versa displays the same value 2 times since glfwGetPrimaryMonitor already returns NULL
+    // a fix would be to check if window_get_width() and width are the same, etc.
+    log_debug("window size changed, width: %d -> %d, height: %d -> %d", window_get_width(), width, window_get_height(), height);
+
+    if (window_is_fullscreen()) return;
+
+    window.width  = width;
+    window.height = height;
+}
 
 void window_init(int width, int height, const char *title, int fullscreen)
 {
     int version;
     GLint major_version, minor_version;
-    GLFWvidmode *mode;
 
     if (glfwInit() == GLFW_FALSE) {
         log_error_and_exit(1, "Failed to initialize GLFW");
@@ -54,14 +67,14 @@ void window_init(int width, int height, const char *title, int fullscreen)
         log_error_and_exit(1, "Failed to create window, width = %d height = %d fullscreen = %s", width, height, fullscreen ? "true" : "false");
     }
 
-    window.mon = glfwGetPrimaryMonitor();
-    mode       = (GLFWvidmode *)glfwGetVideoMode(window.mon);
+    window.mon  = glfwGetPrimaryMonitor();
+    window.mode = (GLFWvidmode *)glfwGetVideoMode(window.mon);
 
     glfwGetWindowSize(window.win, &window.width, &window.height);
     glfwGetWindowPos(window.win, &window.x, &window.y);
 
     if (fullscreen) {
-        log_info("Created window, width = %d height = %d fullscreen = true", mode->width, mode->height);
+        log_info("Created window, width = %d height = %d fullscreen = true", window.mode->width, window.mode->height);
     } else {
         log_info("Created window, width = %d height = %d fullscreen = false", window.width, window.height);
     }
@@ -71,6 +84,7 @@ void window_init(int width, int height, const char *title, int fullscreen)
     glfwMakeContextCurrent(window.win);
     // TODO: Maybe let user set framebuffer-size callback?
     glfwSetFramebufferSizeCallback(window.win, framebuffer_size_callback);
+    glfwSetWindowSizeCallback(window.win, window_size_callback);
 
     log_info("Loading OpenGL functions...");
 
@@ -106,8 +120,6 @@ int window_is_fullscreen(void)
 
 void window_set_fullscreen(int val)
 {
-    GLFWvidmode *mode;
-
     if (val == window_is_fullscreen()) return;
 
     if (val) {
@@ -115,9 +127,9 @@ void window_set_fullscreen(int val)
         glfwGetWindowSize(window.win, &window.width, &window.height);
         glfwGetWindowPos(window.win, &window.x, &window.y);
 
-        mode = (GLFWvidmode *) glfwGetVideoMode(window.mon);
+        window.mode = (GLFWvidmode *) glfwGetVideoMode(window.mon);
 
-        glfwSetWindowMonitor(window.win, window.mon, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+        glfwSetWindowMonitor(window.win, window.mon, 0, 0, window.mode->width, window.mode->height, GLFW_DONT_CARE);
 
         log_debug("Set window to fullscreen");
     } else {
@@ -132,6 +144,29 @@ void window_toggle_fullscreen(void)
     window_set_fullscreen(
         !window_is_fullscreen()
     );
+}
+
+int window_get_width(void)
+{
+    if (window_is_fullscreen()) {
+        return window.mode->width;
+    }
+
+    return window.width;
+}
+
+int window_get_height(void)
+{
+    if (window_is_fullscreen()) {
+        return window.mode->height;
+    }
+
+    return window.height;
+}
+
+float window_get_aspect_ratio(void)
+{
+    return (float)window_get_width() / (float)window_get_height();
 }
 
 void window_set_should_close(int val)
