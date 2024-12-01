@@ -21,5 +21,7 @@ typedef struct {
 Shader_Program shader_new(const char *vertex_path, const char *fragment_path);
 void shader_register_uniform(Shader_Program *prog, const char *name);
 void shader_set_uniform_mat4(Shader_Program *prog, const char *name, float *val, GLboolean transpose);
+void shader_bind(Shader_Program *prog);
+void shader_unbind(Shader_Program *prog);
 
 #endif // _SHADER_H_

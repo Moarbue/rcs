@@ -75,8 +75,21 @@ void shader_set_uniform_mat4(Shader_Program *prog, const char *name, float *val,
         log_error_and_exit(1, "Unknown Uniform %s", name);
     }
 
+    glUseProgram(prog->id);
     glUniformMatrix4fv(prog->uniform_locations[i], 1, transpose, val);
 }
+
+void shader_bind(Shader_Program *prog)
+{
+    glUseProgram(prog->id);
+}
+
+void shader_unbind(Shader_Program *prog)
+{
+    (void) prog;
+    glUseProgram(0);
+}
+
 
 GLuint compile_shader(GLint type, const char *shader_path)
 {
