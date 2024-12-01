@@ -15,7 +15,8 @@ OBJ := $(BIN_DIR)/main.o 	\
 	   $(BIN_DIR)/color.o	\
 	   $(BIN_DIR)/logging.o	\
 	   $(BIN_DIR)/window.o	\
-	   $(BIN_DIR)/util.o
+	   $(BIN_DIR)/util.o	\
+	   $(BIN_DIR)/shader.o
 
 .PHONY: all mkbindir cpshaders clean
 
