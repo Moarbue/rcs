@@ -11,6 +11,8 @@
 // smallest difference we care for
 #define EPS 1e-6
 
+#define ARRAY_LENGTH(arr) (sizeof (arr) / sizeof ((arr)[0]))
+
 float rad(float deg);
 float deg(float rad);
 
