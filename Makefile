@@ -1,6 +1,6 @@
 CC      := clang
 CFLAGS  := -Wall -Wextra -O0 -ggdb3 -c -I./extern/include -I./include
-LDFLAGS := -L./extern/lib -lopengl32 -lgdi32 -lglfw3 -lglad
+LDFLAGS := -L./extern/lib -lgl -lgdi32 -lglfw3
 
 BIN_DIR    := bin
 SRC_DIR    := src
@@ -16,7 +16,8 @@ OBJ := $(BIN_DIR)/main.o 	\
 	   $(BIN_DIR)/logging.o	\
 	   $(BIN_DIR)/window.o	\
 	   $(BIN_DIR)/util.o	\
-	   $(BIN_DIR)/shader.o
+	   $(BIN_DIR)/shader.o	\
+	   $(BIN_DIR)/vertex.o
 
 .PHONY: all mkbindir cpshaders clean
 
