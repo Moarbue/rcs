@@ -4,7 +4,7 @@ Color color_from_hex(uint32_t rgba)
 {
     return color_from_rgba(
         (rgba >> 24) & 0xFF,
-        (rgba >> 12) & 0xFF,
+        (rgba >> 16) & 0xFF,
         (rgba >>  8) & 0xFF,
         (rgba >>  0) & 0xFF
     );
@@ -31,7 +31,7 @@ uint32_t color_to_hex(Color c)
 
     return (
         ((r & 0xFF) << 24) |
-        ((g & 0xFF) << 12) |
+        ((g & 0xFF) << 16) |
         ((b & 0xFF) <<  8) |
         ((a & 0xFF) <<  0)
     );
