@@ -3,42 +3,63 @@
 #include "logging.h"
 #include "util.h"
 
+#include <malloc.h>
 #include <string.h>
 
-GLuint compile_shader(GLint type, const char *shader_path);
+GLint compile_shader(GLint type, const char *shader_path, GLint *shader);
 
-Shader_Program shader_new(const char *vertex_path, const char *fragment_path)
+Shader_Program *shader_new(const char *vertex_path, const char *fragment_path)
 {
-    Shader_Program prog;
+    Shader_Program *prog;
     GLuint vertex_shader, fragment_shader;
     GLint success;
     char info_log[512];
 
+    log_info("Creating shader program...");
+
+    prog = (Shader_Program *) malloc(sizeof (Shader_Program));
+    if (prog == NULL) {
+        log_error("Failed to allocate memory for shader program");
+        return NULL;
+    }
+
     log_info("Compiling vertex shader...");
-    vertex_shader   = compile_shader(GL_VERTEX_SHADER,   vertex_path);
+    success = compile_shader(GL_VERTEX_SHADER, vertex_path, &vertex_shader);
+    if (success == 0) {
+        free(prog);
+        return NULL;
+    }
     log_info("Finished compiling vertex shader");
 
     log_info("Compiling fragment shader...");
-    fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_path);
+    success = compile_shader(GL_FRAGMENT_SHADER, fragment_path, &fragment_shader);
+    if (success == 0) {
+        free(prog);
+        return NULL;
+    }
     log_info("Finished compiling fragment shader");
 
     log_info("Linking shaders with shader program...");
-    prog.id = glCreateProgram();
-    glAttachShader(prog.id, vertex_shader);
-    glAttachShader(prog.id, fragment_shader);
-    glLinkProgram(prog.id);
+    prog->id = glCreateProgram();
+    glAttachShader(prog->id, vertex_shader);
+    glAttachShader(prog->id, fragment_shader);
+    glLinkProgram(prog->id);
 
-    glGetProgramiv(prog.id, GL_LINK_STATUS, &success);
+    glGetProgramiv(prog->id, GL_LINK_STATUS, &success);
     if (success == 0) {
-        glGetProgramInfoLog(prog.id, 512, NULL, info_log);
-        log_error_and_exit(1, "Failed to link program with shaders: %s", info_log);
+        glGetProgramInfoLog(prog->id, 512, NULL, info_log);
+        free(prog);
+        log_error(1, "Failed to link program with shaders: %s", info_log);
+        return NULL;
     }
     log_info("Finished linking shaders to shader program");
 
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    prog.uniform_count = 0;
+    prog->uniform_count = 0;
+
+    log_info("Creating shader program...");
 
     return prog;
 }
@@ -72,7 +93,7 @@ void shader_set_uniform_mat4(Shader_Program *prog, const char *name, float *val,
     }
 
     if (i >= prog->uniform_count) {
-        log_error_and_exit(1, "Unknown Uniform %s", name);
+        log_error("Unknown Uniform %s", name);
     }
 
     glUseProgram(prog->id);
@@ -91,29 +112,40 @@ void shader_unbind(Shader_Program *prog)
 }
 
 
-GLuint compile_shader(GLint type, const char *shader_path)
+GLint compile_shader(GLint type, const char *shader_path, GLint *shader)
 {
     char *shader_code;
-    GLuint shader;
+    GLuint sh;
     GLint success;
     char info_log[512];
 
     shader_code = read_file(shader_path);
     if (shader_code == NULL) {
-        log_error_and_exit(1, "Failed to load shader from file");
+        log_error("Failed to load shader from file");
+        return 0;
     }
 
-    shader = glCreateShader(type);
-    glShaderSource(shader, 1, (const GLchar *const *) &shader_code, NULL);
-    glCompileShader(shader);
+    sh = glCreateShader(type);
+    glShaderSource(sh, 1, (const GLchar *const *) &shader_code, NULL);
+    glCompileShader(sh);
 
     free(shader_code);
 
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(sh, GL_COMPILE_STATUS, &success);
     if (success == 0) {
-        glGetShaderInfoLog(shader, sizeof (info_log), NULL, info_log);
-        log_error_and_exit(1, "Failed to compile shader from file \'%s\': %s", shader_path, info_log);
+        glGetShaderInfoLog(sh, sizeof (info_log), NULL, info_log);
+        log_error("Failed to compile shader from file \'%s\': %s", shader_path, info_log);
+        return 0;
     }
 
-    return shader;
+    *shader = sh;
+    return 1;
+}
+
+void shader_free(Shader_Program *prog)
+{
+    if (prog == NULL) return;
+
+    glDeleteProgram(prog->id);
+    free(prog);
 }
