@@ -24,7 +24,8 @@ OBJ := $(BIN_DIR)/main.o 	\
 	   $(BIN_DIR)/util.o	\
 	   $(BIN_DIR)/shader.o	\
 	   $(BIN_DIR)/vertex.o	\
-	   $(BIN_DIR)/cubie.o
+	   $(BIN_DIR)/cubie.o	\
+	   $(BIN_DIR)/cube.o
 
 OBJ += $(BIN_DIR)/gl.o
 
