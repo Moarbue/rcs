@@ -1,6 +1,12 @@
 CC      := clang
 CFLAGS  := -Wall -Wextra -O0 -ggdb3 -c -I./extern/include -I./include
-LDFLAGS := -L./extern/lib -lgl -lgdi32 -lglfw3
+LDFLAGS := 
+
+ifeq ($(OS), Windows_NT)
+	LDFLAGS += -L./extern/lib -lgdi32 -lgfw3
+else
+	LDFLAGS += -lm -lglfw
+endif
 
 BIN_DIR    := bin
 SRC_DIR    := src
@@ -17,7 +23,10 @@ OBJ := $(BIN_DIR)/main.o 	\
 	   $(BIN_DIR)/window.o	\
 	   $(BIN_DIR)/util.o	\
 	   $(BIN_DIR)/shader.o	\
-	   $(BIN_DIR)/vertex.o
+	   $(BIN_DIR)/vertex.o	\
+	   $(BIN_DIR)/cubie.o
+
+OBJ += $(BIN_DIR)/gl.o
 
 .PHONY: all mkbindir cpshaders clean
 
@@ -30,6 +39,9 @@ cpshaders:
 	cp -r $(SHADER_DIR) $(BIN_DIR)
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+$(BIN_DIR)/gl.o: extern/lib/gl.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 $(BIN):	$(OBJ)
