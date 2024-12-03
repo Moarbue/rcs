@@ -263,7 +263,7 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
     glVertexAttribPointer(VERTEX_POS, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), (void *) offsetof(Vertex, pos));
     glEnableVertexAttribArray(VERTEX_POS);
 
-    glVertexAttribPointer(VERTEX_POS, 4, GL_FLOAT, GL_FALSE, sizeof (Vertex), (void *) offsetof(Vertex, col));
+    glVertexAttribPointer(VERTEX_COL, 4, GL_FLOAT, GL_FALSE, sizeof (Vertex), (void *) offsetof(Vertex, col));
     glEnableVertexAttribArray(VERTEX_COL);
 
     return c;
