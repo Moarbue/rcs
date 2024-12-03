@@ -3,7 +3,7 @@ CFLAGS  := -Wall -Wextra -O0 -ggdb3 -c -I./extern/include -I./include
 LDFLAGS := 
 
 ifeq ($(OS), Windows_NT)
-	LDFLAGS += -L./extern/lib -lgdi32 -lgfw3
+	LDFLAGS += -L./extern/lib -lgdi32 -lglfw3
 else
 	LDFLAGS += -lm -lglfw
 endif
