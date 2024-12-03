@@ -31,7 +31,7 @@ typedef enum {
 } Cube_Color;
 
 typedef struct {
-    Vec3 origin;        // origin of cubie in world, top left corner
+    Vec3 origin;        // origin of cubie in world, top left corner, coordinates are offset directly by origin instead of a translation matrix
     float side_length;  // side length of cubie
 
     uint8_t color_mask; // mask to determine the colored faces of a cubie, combination of Cube_Color_Mask enum
