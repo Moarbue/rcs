@@ -66,6 +66,8 @@ Cubie cubie(Cubie_Config *cconf)
     c.index_count = ARRAY_LENGTH(cubie_indices) + face_count * ARRAY_LENGTH(face_indices) / 2;
     c.indices = (uint32_t *) malloc(c.index_count * sizeof (uint32_t));
 
+    c.ori = quat_identity();
+
     face_length = cconf->side_length * cconf->face_length_multiplier;
 
     // scale face_coords[] to face_length
@@ -269,4 +271,14 @@ Cubie cubie(Cubie_Config *cconf)
     glEnableVertexAttribArray(VERTEX_COL);
 
     return c;
+}
+
+void cubie_free(Cubie c)
+{
+    free(c.verts);
+    free(c.indices);
+
+    glDeleteVertexArrays(1, &c.vao);
+    glDeleteBuffers(1, &c.vbo);
+    glDeleteBuffers(1, &c.ebo);
 }

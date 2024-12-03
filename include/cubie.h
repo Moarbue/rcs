@@ -21,5 +21,6 @@ typedef struct {
 } Cubie;
 
 Cubie cubie(Cubie_Config *cconf);
+void cubie_free(Cubie c);
 
 #endif // _CUBIE_H_
