@@ -4,7 +4,10 @@
 #include "vec.h"
 
 typedef struct {
-    float e[4][4];
+    union {
+        float e[4][4];
+        float raw[16];
+    };
 } Mat4;
 
 Mat4 mat4(void);
