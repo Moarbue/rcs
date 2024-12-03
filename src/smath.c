@@ -58,6 +58,20 @@ int iclamp(int val, int minVal, int maxVal)
     return min(max(val, minVal), maxVal);
 }
 
+// same as min but for uint64_t
+uint64_t u64min(uint64_t a, uint64_t b)
+{
+    if (a < b) return a;
+    return b;
+}
+
+// same as max but for uint64_t
+uint64_t u64max(uint64_t a, uint64_t b)
+{
+    if (a > b) return a;
+    return b;
+}
+
 // Linear interpolation from a to b
 float lerp(float a, float b, float t)
 {

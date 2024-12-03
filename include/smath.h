@@ -8,6 +8,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include <stdint.h>
+
 // smallest difference we care for
 #define EPS 1e-6
 
@@ -25,6 +27,9 @@ float clamp(float val, float minVal, float maxVal);
 int imin(int a, int b);
 int imax(int a, int b);
 int iclamp(int val, int minVal, int maxVal);
+
+uint64_t u64min(uint64_t a, uint64_t b);
+uint64_t u64max(uint64_t a, uint64_t b);
 
 float lerp(float a, float b, float t);
 
