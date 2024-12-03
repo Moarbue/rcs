@@ -107,13 +107,13 @@ GLuint compile_shader(GLint type, const char *shader_path)
     glShaderSource(shader, 1, (const GLchar *const *) &shader_code, NULL);
     glCompileShader(shader);
 
+    free(shader_code);
+
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (success == 0) {
         glGetShaderInfoLog(shader, sizeof (info_log), NULL, info_log);
-        free(shader_code);
         log_error_and_exit(1, "Failed to compile shader from file \'%s\': %s", shader_path, info_log);
     }
-    free(shader_code);
 
     return shader;
 }
