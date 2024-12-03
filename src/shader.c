@@ -6,7 +6,7 @@
 #include <malloc.h>
 #include <string.h>
 
-GLint compile_shader(GLint type, const char *shader_path, GLint *shader);
+GLint compile_shader(GLint type, const char *shader_path, GLuint *shader);
 
 Shader_Program *shader_new(const char *vertex_path, const char *fragment_path)
 {
@@ -49,7 +49,7 @@ Shader_Program *shader_new(const char *vertex_path, const char *fragment_path)
     if (success == 0) {
         glGetProgramInfoLog(prog->id, 512, NULL, info_log);
         free(prog);
-        log_error(1, "Failed to link program with shaders: %s", info_log);
+        log_error("Failed to link program with shaders: %s", info_log);
         return NULL;
     }
     log_info("Finished linking shaders to shader program");
@@ -112,7 +112,7 @@ void shader_unbind(Shader_Program *prog)
 }
 
 
-GLint compile_shader(GLint type, const char *shader_path, GLint *shader)
+GLint compile_shader(GLint type, const char *shader_path, GLuint *shader)
 {
     char *shader_code;
     GLuint sh;
