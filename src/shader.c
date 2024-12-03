@@ -59,7 +59,7 @@ Shader_Program *shader_new(const char *vertex_path, const char *fragment_path)
 
     prog->uniform_count = 0;
 
-    log_info("Creating shader program...");
+    log_info("Finished creating shader program");
 
     return prog;
 }
