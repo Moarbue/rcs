@@ -20,9 +20,9 @@ typedef enum {
 
 typedef enum {
     COLOR_BORDER,
+    COLOR_FRONT,
     COLOR_UP,
     COLOR_LEFT,
-    COLOR_FRONT,
     COLOR_BACK,
     COLOR_DOWN,
     COLOR_RIGHT,
@@ -38,7 +38,7 @@ typedef struct {
 
     Color face_colors[CUBE_COLOR_COUNT];    // border color + 6 face colors
     float face_length_multiplier;           // face length relative to cubie length [0...1]
-    float face_offset_from_cubie;           // offset from cubie to face to prevent visual glitches, small value like 1e-6f should do
+    float face_offset_from_cubie;           // offset from cubie to face to prevent visual glitches, small value like 1e-3f should do
 } Cubie_Config;
 
 #endif // _CUBIE_CONFIG_H_
