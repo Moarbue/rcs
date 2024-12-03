@@ -45,17 +45,17 @@ const uint8_t face_indices[] = {
     1 + ARRAY_LENGTH(cubie_coords), 3 + ARRAY_LENGTH(cubie_coords), 2 + ARRAY_LENGTH(cubie_coords),
 };
 
-Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset_from_cube, uint8_t color_mask)
+Cubie cubie(Cubie_Config *cconf)
 {
     Cubie c;
     uint8_t i, face_count;
     uint64_t vc, ic, face_indices_offset;
     Vec3 face_origin, scaled_face_coords[ARRAY_LENGTH(face_coords)];
-    float border_width;
+    float face_length, border_width;
 
     face_count = 0;
     for (i = 0; i < COLOR_MASK_COUNT; i++) {
-        if (color_mask & (1 << i)) face_count++;
+        if (cconf->color_mask & (1 << i)) face_count++;
     }
 
     // allocate memory for vertices, division by 3 because face_coords[] packs the 3 different planes a face can be on
@@ -66,6 +66,8 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
     c.index_count = ARRAY_LENGTH(cubie_indices) + face_count * ARRAY_LENGTH(face_indices) / 2;
     c.indices = (uint32_t *) malloc(c.index_count * sizeof (uint32_t));
 
+    face_length = cconf->side_length * cconf->face_length_multiplier;
+
     // scale face_coords[] to face_length
     for (i = 0; i < ARRAY_LENGTH(face_coords); i++) {
         scaled_face_coords[i] = vec3_scale(face_coords[i], face_length);
@@ -75,8 +77,8 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
     for (vc = 0; vc < ARRAY_LENGTH(cubie_coords); vc++) {
         // scale and offset the vertices
         c.verts[vc] = vertex(
-            vec3_add(origin, vec3_scale(cubie_coords[vc], side_length)),
-            color_from_hex(0x000000FF)
+            vec3_add(cconf->origin, vec3_scale(cubie_coords[vc], cconf->side_length)),
+            cconf->face_colors[COLOR_BORDER]
         );
     }
 
@@ -87,24 +89,24 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
     }
 
     // dont allow negative border_width
-    border_width = fabsf(side_length - face_length) / 2.0f;
+    border_width = fabsf(cconf->side_length - face_length) / 2.0f;
 
     // every additional face adds an offset of 4 (1 face = 4 vertices)
     face_indices_offset = 0;
 
     // generate the coordinates of the faces
-    if (color_mask & COLOR_MASK_FRONT) {
+    if (cconf->color_mask & COLOR_MASK_FRONT) {
         face_origin = vec3(
-            origin.x + border_width,
-            origin.y - border_width,
-            origin.z + face_offset_from_cube
+            cconf->origin.x + border_width,
+            cconf->origin.y - border_width,
+            cconf->origin.z + cconf->face_offset_from_cubie
         );
 
         // face is in xy-plane so use first 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
             c.verts[vc++] = vertex(
                 vec3_add(face_origin, scaled_face_coords[i]),
-                color_from_hex(0xB90000FF)
+                cconf->face_colors[COLOR_FRONT]
             );
         }
 
@@ -118,18 +120,18 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
         log_debug("Generated front face");
     }
 
-    if (color_mask & COLOR_MASK_UP) {
+    if (cconf->color_mask & COLOR_MASK_UP) {
         face_origin = vec3(
-            origin.x + border_width,
-            origin.y + face_offset_from_cube,
-            origin.z - border_width
+            cconf->origin.x + border_width,
+            cconf->origin.y + cconf->face_offset_from_cubie,
+            cconf->origin.z - border_width
         );
 
         // face is in xz-plane so use second 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
             c.verts[vc++] = vertex(
                 vec3_add(face_origin, scaled_face_coords[i + ARRAY_LENGTH(face_coords) / 3]),
-                color_from_hex(0xFFD500FF)
+                cconf->face_colors[COLOR_UP]
             );
         }
 
@@ -143,18 +145,18 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
         log_debug("Generated up face");
     }
 
-    if (color_mask & COLOR_MASK_LEFT) {
+    if (cconf->color_mask & COLOR_MASK_LEFT) {
         face_origin = vec3(
-            origin.x - face_offset_from_cube,
-            origin.y - border_width,
-            origin.z - border_width
+            cconf->origin.x - cconf->face_offset_from_cubie,
+            cconf->origin.y - border_width,
+            cconf->origin.z - border_width
         );
 
         // face is in yz-plane so use third 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
             c.verts[vc++] = vertex(
                 vec3_add(face_origin, scaled_face_coords[i + 2 * ARRAY_LENGTH(face_coords) / 3]),
-                color_from_hex(0x0045ADFF)
+                cconf->face_colors[COLOR_LEFT]
             );
         }
 
@@ -168,18 +170,18 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
         log_debug("Generated left face");
     }
 
-    if (color_mask & COLOR_MASK_BACK) {
+    if (cconf->color_mask & COLOR_MASK_BACK) {
         face_origin = vec3(
-            origin.x + border_width,
-            origin.y - border_width,
-            origin.z - face_offset_from_cube - side_length
+            cconf->origin.x + border_width,
+            cconf->origin.y - border_width,
+            cconf->origin.z - cconf->face_offset_from_cubie - cconf->side_length
         );
 
         // face is in xy-plane so use first 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
             c.verts[vc++] = vertex(
                 vec3_add(face_origin, scaled_face_coords[i]),
-                color_from_hex(0xFF5900FF)
+                cconf->face_colors[COLOR_BACK]
             );
         }
 
@@ -193,18 +195,18 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
         log_debug("Generated back face");
     }
 
-    if (color_mask & COLOR_MASK_DOWN) {
+    if (cconf->color_mask & COLOR_MASK_DOWN) {
         face_origin = vec3(
-            origin.x + border_width,
-            origin.y - face_offset_from_cube - side_length,
-            origin.z - border_width
+            cconf->origin.x + border_width,
+            cconf->origin.y - cconf->face_offset_from_cubie - cconf->side_length,
+            cconf->origin.z - border_width
         );
 
         // face is in xz-plane so use second 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
             c.verts[vc++] = vertex(
                 vec3_add(face_origin, scaled_face_coords[i + ARRAY_LENGTH(face_coords) / 3]),
-                color_from_hex(0xFFFFFFFF)
+                cconf->face_colors[COLOR_DOWN]
             );
         }
 
@@ -218,18 +220,18 @@ Cubie cubie(Vec3 origin, float side_length, float face_length, float face_offset
         log_debug("Generated down face");
     }
 
-    if (color_mask & COLOR_MASK_RIGHT) {
+    if (cconf->color_mask & COLOR_MASK_RIGHT) {
         face_origin = vec3(
-            origin.x + face_offset_from_cube + side_length,
-            origin.y - border_width,
-            origin.z - border_width
+            cconf->origin.x + cconf->face_offset_from_cubie + cconf->side_length,
+            cconf->origin.y - border_width,
+            cconf->origin.z - border_width
         );
 
         // face is in yz-plane so use third 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
             c.verts[vc++] = vertex(
                 vec3_add(face_origin, scaled_face_coords[i + 2 * ARRAY_LENGTH(face_coords) / 3]),
-                color_from_hex(0x009B48FF)
+                cconf->face_colors[COLOR_RIGHT]
             );
         }
 
