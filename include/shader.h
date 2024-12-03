@@ -3,6 +3,8 @@
 
 #include "glad/gl.h"
 
+#include <stddef.h>
+
 #ifndef SHADER_MAX_UNIFORMS
 #   define SHADER_MAX_UNIFORMS 10
 #endif 
