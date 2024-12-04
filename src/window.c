@@ -7,7 +7,8 @@
 typedef struct {
     GLFWwindow *win;
     Key_Callback kcallback;
-    Framebuffer_Size_Callback fbcallback;
+    Window_Size_Callback wsbcallback;
+    Render_Function render_func;
 
     int x, y, width, height;
     GLFWmonitor *mon;
@@ -21,27 +22,45 @@ void key_callback_wrapper(GLFWwindow *win, int key, int scancode, int action, in
     (void) win; (void) scancode;
     (*window.kcallback)(key, action, mods);
 }
+void window_size_callback_wrapper(GLFWwindow *win, int width, int height)
+{
+    static int was_fullscreen = 0;
+
+    (void) win;
+
+    // don't update window.width and height if it was changed to fullscreen
+    if (window_is_fullscreen()) {
+        log_debug("window size changed, width: %d -> %d, height: %d -> %d", window.width, width, window.height, height);
+        was_fullscreen = 1;
+        return;
+    } else if (was_fullscreen) {
+        // window changed from fullscreen to windowed, so window_get_width()/height() will already return the new width/height
+        log_debug("window size changed, width: %d -> %d, height: %d -> %d", window.mode->width, width, window.mode->height, height);
+        was_fullscreen = 0;
+    } else {
+        log_debug("window size changed, width: %d -> %d, height: %d -> %d", window_get_width(), width, window_get_height(), height);
+    }
+
+    window.width  = width;
+    window.height = height;
+
+    (*window.wsbcallback)(width, height);
+
+    // make resizing smooth by rendering a frame
+    (*window.render_func)();
+    glfwPollEvents();
+    glfwSwapBuffers(window.win);
+}
 void framebuffer_size_callback(GLFWwindow *win, int width, int height)
 {
     (void) win;
     glViewport(0, 0, (GLint)width, (GLint)height);
-    // make resizing smooth
-    glfwPollEvents();
-    glfwSwapBuffers(window.win);
 }
-void window_size_callback(GLFWwindow *win, int width, int height)
-{
-    (void) win;
 
-    // Resizing from fullscreen to windowed or vice versa displays the same value 2 times since glfwGetPrimaryMonitor already returns NULL
-    // a fix would be to check if window_get_width() and width are the same, etc.
-    log_debug("window size changed, width: %d -> %d, height: %d -> %d", window_get_width(), width, window_get_height(), height);
+void key_callback_default(int key, int action, int mods) {(void) key; (void) action; (void) mods;}
+void window_size_callback_default(int width, int height) {(void) width; (void) height;}
 
-    if (window_is_fullscreen()) return;
-
-    window.width  = width;
-    window.height = height;
-}
+void render_func_default(void) {}
 
 void window_init(int width, int height, const char *title, int fullscreen)
 {
@@ -70,6 +89,11 @@ void window_init(int width, int height, const char *title, int fullscreen)
     window.mon  = glfwGetPrimaryMonitor();
     window.mode = (GLFWvidmode *)glfwGetVideoMode(window.mon);
 
+    window.kcallback   = key_callback_default;
+    window.wsbcallback = window_size_callback_default;
+
+    window.render_func = render_func_default;
+
     glfwGetWindowSize(window.win, &window.width, &window.height);
     glfwGetWindowPos(window.win, &window.x, &window.y);
 
@@ -79,12 +103,10 @@ void window_init(int width, int height, const char *title, int fullscreen)
         log_info("Created window, width = %d height = %d fullscreen = false", window.width, window.height);
     }
 
-    window_set_fullscreen(fullscreen);
-
     glfwMakeContextCurrent(window.win);
-    // TODO: Maybe let user set framebuffer-size callback?
     glfwSetFramebufferSizeCallback(window.win, framebuffer_size_callback);
-    glfwSetWindowSizeCallback(window.win, window_size_callback);
+    glfwSetKeyCallback(window.win, key_callback_wrapper);
+    glfwSetWindowSizeCallback(window.win, window_size_callback_wrapper);
 
     log_info("Loading OpenGL functions...");
 
@@ -98,6 +120,8 @@ void window_init(int width, int height, const char *title, int fullscreen)
 
     log_info("Finished loading OpenGL functions, using version %d.%d", major_version, minor_version);
 
+    window_set_fullscreen(fullscreen);
+
     // 3D Options
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -108,9 +132,15 @@ void window_init(int width, int height, const char *title, int fullscreen)
 void window_set_key_callback(Key_Callback callback)
 {
     window.kcallback = callback;
-    glfwSetKeyCallback(window.win, key_callback_wrapper);
 
     log_info("Registered key callback for window");
+}
+
+void window_set_size_callback(Window_Size_Callback callback)
+{
+    window.wsbcallback = callback;
+
+    log_info("Registered window size callback for window");
 }
 
 int window_is_fullscreen(void)
@@ -126,8 +156,6 @@ void window_set_fullscreen(int val)
         // backup size and position
         glfwGetWindowSize(window.win, &window.width, &window.height);
         glfwGetWindowPos(window.win, &window.x, &window.y);
-
-        window.mode = (GLFWvidmode *) glfwGetVideoMode(window.mon);
 
         glfwSetWindowMonitor(window.win, window.mon, 0, 0, window.mode->width, window.mode->height, GLFW_DONT_CARE);
 
@@ -179,18 +207,27 @@ void window_set_should_close(int val)
 
 int window_should_close(void)
 {
-    // Poll events and swap buffers in background
-    glfwPollEvents();
-    glfwSwapBuffers(window.win);
-
     return glfwWindowShouldClose(window.win);
 }
 
 void window_clear(Color c)
 {
-    // TODO: maybe implemnt set_clear_color() ?
+    // TODO: maybe implement set_clear_color() ?
     glClearColor(c.r, c.g, c.b, c.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void window_main_loop(Render_Function render_frame)
+{
+    window.render_func = render_frame;
+
+    while(!window_should_close()) {
+        (*window.render_func)();
+
+        // Poll events and swap buffers in background
+        glfwPollEvents();
+        glfwSwapBuffers(window.win);
+    }
 }
 
 float window_get_frame_time(void)

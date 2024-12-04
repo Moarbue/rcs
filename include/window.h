@@ -4,10 +4,12 @@
 #include "color.h"
 
 typedef void (* Key_Callback)(int key, int action, int mods);
-typedef void (* Framebuffer_Size_Callback)(int width, int height);
+typedef void (* Window_Size_Callback)(int width, int height);
+typedef void (* Render_Function) (void);
 
 void  window_init(int width, int height, const char *title, int fullscreen);
 void  window_set_key_callback(Key_Callback callback);
+void  window_set_size_callback(Window_Size_Callback callback);
 int   window_is_fullscreen(void);
 void  window_set_fullscreen(int val);
 void  window_toggle_fullscreen(void);
@@ -17,6 +19,7 @@ float window_get_aspect_ratio(void);
 void  window_set_should_close(int val);
 int   window_should_close(void);
 void  window_clear(Color c);
+void  window_main_loop(Render_Function render_frame);
 float window_get_frame_time(void);
 void  window_close(void);
 
