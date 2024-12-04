@@ -4,17 +4,21 @@
 #include "window.h"
 
 void key_callback(int key, int action, int mods);
+void window_size_callback(int width, int height);
+
+void render_frame(void);
 
 Mat4 view, proj, view_proj;
+Rubiks_Cube *rc;
 
 int main(void)
 {
-    set_logging_level(LOG_INFO);
+    set_logging_level(LOG_DEBUG);
 
     window_init(800, 600, "Rubiks Cube Simulation", 1);
     window_set_key_callback(key_callback);
+    window_set_size_callback(window_size_callback);
 
-    Rubiks_Cube *rc;
     Rubiks_Cube_Config rcconf;
     rcconf.cubie_spacer_multiplier = 0.05f;
     rcconf.face_length_multiplier  = 0.95f;
@@ -22,7 +26,7 @@ int main(void)
     rcconf.vertex_path             = "shaders/cube.vert";
     rcconf.fragment_path           = "shaders/cube.frag";
     rcconf.scale                   = 1.0f;
-    rcconf.origin                  = vec3s(0);
+    rcconf.origin                  = vec3(0, 0, 0);
     rcconf.width                   = 3;
     rcconf.height                  = 3;
     rcconf.depth                   = 3;
@@ -37,15 +41,11 @@ int main(void)
     rc = rubiks_cube(&rcconf);
 
     // view = mat4_look_at(vec3_from_spherical(3.0f, rad(0.0f), rad(0.0f)), rcconf.origin, vec3(0.0f, 1.0f, 0.0f));
-    view = mat4_look_at(vec3(0, 0, 0), rcconf.origin, vec3(0.0f, 1.0f, 0.0f));
+    view = mat4_look_at(vec3(0, 0, 3), rcconf.origin, vec3(0.0f, 1.0f, 0.0f));
     proj = mat4_perspective(rad(45.0f), window_get_aspect_ratio(), 0.01f, 100.0f);
     view_proj = mat4_mul(proj, view);
 
-    while(!window_should_close()) {
-        window_clear(color_from_hex(0xDFD3C3FF));
-
-        rubiks_cube_draw(rc, view_proj);
-    }
+    window_main_loop(render_frame);
 
     rubiks_cube_delete(rc);
     window_close();
@@ -62,4 +62,16 @@ void key_callback(int key, int action, int mods)
     if (key == KEY_F11 && action == KEY_PRESS) {
         window_toggle_fullscreen();
     }
+}
+
+void window_size_callback(int width, int height)
+{
+    mat4_perspective_resize(&proj, (float)width / (float) height);
+    view_proj = mat4_mul(proj, view);
+}
+
+void render_frame(void)
+{
+    window_clear(color_from_hex(0xDFD3C3FF));
+    rubiks_cube_draw(rc, view_proj);
 }
