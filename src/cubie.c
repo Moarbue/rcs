@@ -275,9 +275,13 @@ Cubie cubie(Cubie_Config *cconf)
 
 void cubie_free(Cubie c)
 {
-    free(c.verts);
-    free(c.indices);
+    if (c.verts != NULL)
+        free(c.verts);
+    
+    if (c.indices != NULL)
+        free(c.indices);
 
+    // TODO: maybe check if vao, vbo and ebo are valid?
     glDeleteVertexArrays(1, &c.vao);
     glDeleteBuffers(1, &c.vbo);
     glDeleteBuffers(1, &c.ebo);
