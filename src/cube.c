@@ -136,14 +136,19 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
     shader_unbind(rc->prog);
 }
 
-void rubiks_cube_delete(Rubiks_Cube *rc)
+void rubiks_cube_free(Rubiks_Cube *rc)
 {
     uint64_t i;
+
+    if (rc == NULL) return;
 
     for (i = 0; i < rc->cubie_count; i++) {
         cubie_free(rc->cubies[i]);
     }
     shader_free(rc->prog);
-    free(rc->cubies);
+
+    if (rc->cubies != NULL)
+        free(rc->cubies);
+
     free(rc);
 }
