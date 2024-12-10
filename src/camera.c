@@ -27,6 +27,9 @@ Camera *camera(Vec3 target, float distance, float theta, float phi, float zrot)
         cam->a[i].efunc = linear;
     }
 
+    camera_set_orbit_position(cam, distance, theta, phi, zrot);
+    camera_set_target(cam, target);
+
     log_info("Finished creating camera");
 
     return cam;
@@ -60,7 +63,7 @@ void camera_add_to_orbit_position(Camera *cam, float distance, float theta, floa
     a = &cam->a[CAM_ANIM_ORIENTATION];
     *a = animate_quaternion(
         &cam->iori,
-        quat_mul(cam->iori, quat_from_euler_xyz(vec3(phi, theta, zrot))),
+        quat_mul(a->data.q.end, quat_from_euler_xyz(vec3(phi, theta, zrot))),
         a->duration,
         a->efunc
     );
@@ -68,7 +71,7 @@ void camera_add_to_orbit_position(Camera *cam, float distance, float theta, floa
     a = &cam->a[CAM_ANIM_DISTANCE];
     *a = animate_scalar(
         &cam->dst,
-        cam->dst + distance,
+        a->data.s.end + distance,
         a->duration,
         a->efunc
     );
@@ -94,7 +97,7 @@ void camera_add_to_target(Camera *cam, Vec3 target)
     a = &cam->a[CAM_ANIM_TARGET];
     *a = animate_vector3(
         &cam->target,
-        vec3_add(cam->target, target),
+        vec3_add(a->data.v.end, target),
         a->duration,
         a->efunc
     );
