@@ -13,19 +13,21 @@ SRC_DIR    := src
 SHADER_DIR := shaders
 
 BIN := $(BIN_DIR)/rcs
-OBJ := $(BIN_DIR)/main.o 	\
-	   $(BIN_DIR)/smath.o	\
-	   $(BIN_DIR)/vec.o		\
-	   $(BIN_DIR)/mat.o		\
-	   $(BIN_DIR)/quat.o	\
-	   $(BIN_DIR)/color.o	\
-	   $(BIN_DIR)/logging.o	\
-	   $(BIN_DIR)/window.o	\
-	   $(BIN_DIR)/util.o	\
-	   $(BIN_DIR)/shader.o	\
-	   $(BIN_DIR)/vertex.o	\
-	   $(BIN_DIR)/cubie.o	\
-	   $(BIN_DIR)/cube.o
+OBJ := $(BIN_DIR)/main.o 		\
+	   $(BIN_DIR)/smath.o		\
+	   $(BIN_DIR)/vec.o			\
+	   $(BIN_DIR)/mat.o			\
+	   $(BIN_DIR)/quat.o		\
+	   $(BIN_DIR)/color.o		\
+	   $(BIN_DIR)/logging.o		\
+	   $(BIN_DIR)/window.o		\
+	   $(BIN_DIR)/util.o		\
+	   $(BIN_DIR)/shader.o		\
+	   $(BIN_DIR)/vertex.o		\
+	   $(BIN_DIR)/cubie.o		\
+	   $(BIN_DIR)/cube.o		\
+	   $(BIN_DIR)/animation.o	\
+	   $(BIN_DIR)/camera.o
 
 OBJ += $(BIN_DIR)/gl.o
 
