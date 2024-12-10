@@ -178,24 +178,22 @@ Vec3 vec3_crossn(Vec3 a, Vec3 b)
 }
 
 // Create a Vec3 from Spherical Coordinates
-// radius = radius of sphere
-// theta  = angle in radians from z-Axis
-// phi    = angle in radians from x-Axis
-// see https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
+// theta = angle from negative z-axis to x-axis, clock-wise, [-pi, pi]
+// phi   = angle from negative z-axis to y-axis, positive is up [-pi/2, pi/2]
 Vec3 vec3_from_spherical(float radius, float theta, float phi)
 {
+    radius = fabsf(radius);
     return vec3(
-        radius * sinf(theta) * cosf(phi),
-        radius * sinf(theta) * sinf(phi),
-        radius * cosf(theta)
+        -radius * sinf(theta),
+         radius * cosf(theta) * sinf(phi),
+         radius * cosf(theta) * cosf(phi)
     );
 }
 
 // Convert a Vec3 to Spherical Coordinates
 // res.x = radius
-// res.y = theta (angle in radians from z-Axis)
+// res.y = theta (angle around y-axis)
 // res.z = phi   (angle in radians from x-Axis)
-// see https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
 Vec3 vec3_to_spherical(Vec3 v)
 {
     float r, theta, phi;
@@ -204,11 +202,11 @@ Vec3 vec3_to_spherical(Vec3 v)
     if (fabs(r) < EPS) return vec3s(0.0f);
 
     theta = atan2(
-        sqrtf(pow2(v.x) + pow2(v.y)),
-        v.z
+        -v.x,
+        sqrtf(pow2(v.y) + pow2(v.z))
     );
 
-    phi = atan2(v.y, v.x);
+    phi = atan2(v.y, v.z);
 
     return vec3(r, theta, phi);
 }
