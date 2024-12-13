@@ -41,8 +41,11 @@ int main(void)
     rcconf.face_colors[6]          = color_from_hex(0x009B48FF);
 
     rc = rubiks_cube(&rcconf);
+    rubiks_cube_set_move_duration(rc, 0.5f);
+    rubiks_cube_set_move_cooldownn(rc, 0.2f);
+    rubiks_cube_set_move_easing_func(rc, ease_in_out_sine);
 
-    cam = camera(rcconf.origin, 3, rad(45), rad(0), rad(0));
+    cam = camera(rcconf.origin, 3, rad(45), rad(30), rad(0));
     camera_set_animation_duration(cam, CAM_ANIM_ALL, 0.5f);
     camera_set_animation_easing_func(cam, CAM_ANIM_ALL, ease_in_out_sine);
 
@@ -89,6 +92,106 @@ void key_callback(int key, int action, int mods)
     if (key == KEY_6 && action == KEY_PRESS) {
         camera_add_to_orbit_position(cam, 0.0f, 0.0f, 0.0f, -M_PI_2);
     }
+
+    // Front moves
+    if (key == KEY_F && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CCW, 0);
+    }
+    if (key == KEY_F && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_180, 0);
+    }
+    if (key == KEY_F && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CW,  0);
+    }
+
+    // Up moves
+    if (key == KEY_U && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CCW, (rc->d-1)*rc->h*rc->w);
+    }
+    if (key == KEY_U && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_180, (rc->d-1)*rc->h*rc->w);
+    }
+    if (key == KEY_U && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CW,  (rc->d-1)*rc->h*rc->w);
+    }
+
+    // Left moves
+    if (key == KEY_L && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, (rc->d-1)*rc->h*rc->w);
+    }
+    if (key == KEY_L && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, (rc->d-1)*rc->h*rc->w);
+    }
+    if (key == KEY_L && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  (rc->d-1)*rc->h*rc->w);
+    }
+
+    // Back moves
+    if (key == KEY_B && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CCW, (rc->d-1)*rc->h*rc->w + (rc->w-1));
+    }
+    if (key == KEY_B && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_180, (rc->d-1)*rc->h*rc->w + (rc->w-1));
+    }
+    if (key == KEY_B && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CW,  (rc->d-1)*rc->h*rc->w + (rc->w-1));
+    }
+
+    // Down moves
+    if (key == KEY_D && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, (rc->h-1)*rc->w);
+    }
+    if (key == KEY_D && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, (rc->h-1)*rc->w);
+    }
+    if (key == KEY_D && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  (rc->h-1)*rc->w);
+    }
+
+    // Right moves
+    if (key == KEY_R && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CCW, rc->w-1);
+    }
+    if (key == KEY_R && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_180, rc->w-1);
+    }
+    if (key == KEY_R && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CW,  rc->w-1);
+    }
+
+
+    // S moves
+    if (key == KEY_S && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CCW, rc->h*rc->w);
+    }
+    if (key == KEY_S && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_180, rc->h*rc->w);
+    }
+    if (key == KEY_S && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CW,  rc->h*rc->w);
+    }
+
+    // E moves
+    if (key == KEY_E && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, rc->w);
+    }
+    if (key == KEY_E && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, rc->w);
+    }
+    if (key == KEY_E && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  rc->w);
+    }
+
+    // M moves
+    if (key == KEY_M && (mods & MOD_CONTROL) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, (rc->d-1)*rc->h*rc->w + 1);
+    }
+    if (key == KEY_M && (mods & MOD_SHIFT) && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, (rc->d-1)*rc->h*rc->w + 1);
+    }
+    if (key == KEY_M && action == KEY_PRESS) {
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  (rc->d-1)*rc->h*rc->w + 1);
+    }
 }
 
 void window_size_callback(int width, int height)
@@ -99,7 +202,11 @@ void window_size_callback(int width, int height)
 
 void render_frame(void)
 {
-    camera_update(cam, window_get_frame_time());
+    float dt;
+    dt = window_get_frame_time();
+
+    rubiks_cube_update(rc, dt);
+    camera_update(cam, dt);
     view_proj = mat4_mul(proj, camera_get_view_matrix(cam));
 
     window_clear(color_from_hex(0xDFD3C3FF));
