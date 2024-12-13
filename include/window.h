@@ -146,6 +146,10 @@ typedef enum {
 	KEY_RIGHT_ALT         = 346,
 	KEY_RIGHT_SUPER       = 347,
 	KEY_MENU              = 348,
+	MOD_SHIFT			  = 0x1,
+	MOD_CONTROL           = 0x2,
+	MOD_ALT               = 0x4,
+	MOD_SUPER             = 0x8,
 } Key_Codes;
 
 typedef enum {
