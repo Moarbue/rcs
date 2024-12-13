@@ -1,6 +1,7 @@
 #ifndef _CUBE_H_
 #define _CUBE_H_
 
+#include "animation.h"
 #include "cube_config.h"
 #include "cubie.h"
 #include "mat.h"
@@ -16,7 +17,7 @@ typedef struct {
     uint64_t cubie_count;
     Cubie *cubies;
 
-    Vec3 origin;
+    Vec3 pos;
     Quat ori;
     float scale;
 

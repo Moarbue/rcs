@@ -39,9 +39,9 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
         return NULL;
     }
 
-    rc->origin = rcconf->origin;
-    rc->ori    = quat_identity();
-    rc->scale  = rcconf->scale;
+    rc->pos   = rcconf->origin;
+    rc->ori   = quat_identity();
+    rc->scale = rcconf->scale;
 
     rc->prog = shader_new(rcconf->vertex_path, rcconf->fragment_path);
     if (rc->prog == NULL) {
@@ -116,16 +116,17 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
     uint64_t i;
     Mat4 m, mvp;
 
-    m = mat4_translation(rc->origin);
-    quat_rotatem4_at(&m, rc->ori, rc->origin);
+    m = mat4_translation(rc->pos);
+    quat_rotatem4_at(&m, rc->ori, rc->pos);
     mat4_scale_s(&m, rc->scale);
 
-    mvp = mat4_mul(view_proj, m);
+    m = mat4_mul(view_proj, m);
 
     shader_bind(rc->prog);
 
     for (i = 0; i < rc->cubie_count; i++) {
-        mvp = mat4_mul(mvp, quat_to_mat4(rc->cubies[i].ori));
+        mvp = m;
+        quat_rotatem4_at(&mvp, rc->cubies[i].ori, rc->pos);
         shader_set_uniform_mat4(rc->prog, "mvp", mvp.raw, GL_FALSE);
 
         glBindVertexArray(rc->cubies[i].vao);
