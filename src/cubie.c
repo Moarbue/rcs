@@ -68,6 +68,10 @@ Cubie cubie(Cubie_Config *cconf)
 
     c.ori = quat_identity();
 
+    c.a = (Animation) {0};
+    c.a.efunc = linear;
+    c.a.data.q.end = c.ori;
+
     face_length = cconf->side_length * cconf->face_length_multiplier;
 
     // scale face_coords[] to face_length
@@ -271,6 +275,32 @@ Cubie cubie(Cubie_Config *cconf)
     glEnableVertexAttribArray(VERTEX_COL);
 
     return c;
+}
+
+void cubie_set_animation_duration(Cubie *c, float duration)
+{
+    c->a.duration = duration;
+}
+
+void cubie_set_animation_easing_func(Cubie *c, easing_func efunc)
+{
+    c->a.efunc = efunc;
+}
+
+void cubie_rotation_add(Cubie *c, Vec3 axis, float angle)
+{
+    axis = quat_rotatev3(axis, quat_conjugate(c->a.data.q.end));
+    c->a = animate_quaternion(
+        &c->ori,
+        quat_mul(c->a.data.q.end, quat_from_axis_angle(axis, angle)),
+        c->a.duration,
+        c->a.efunc
+    );
+}
+
+void cubie_update(Cubie *c, float dt)
+{
+    update_animation(&c->a, dt);
 }
 
 void cubie_free(Cubie c)
