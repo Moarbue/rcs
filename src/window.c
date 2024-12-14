@@ -13,6 +13,8 @@ typedef struct {
     int x, y, width, height;
     GLFWmonitor *mon;
     GLFWvidmode *mode;
+
+    Color clear_color;
 } Window;
 
 Window window;
@@ -210,10 +212,14 @@ int window_should_close(void)
     return glfwWindowShouldClose(window.win);
 }
 
-void window_clear(Color c)
+void window_set_clear_color(Color c)
 {
-    // TODO: maybe implement set_clear_color() ?
-    glClearColor(c.r, c.g, c.b, c.a);
+    window.clear_color = c;
+}
+
+void window_clear(void)
+{
+    glClearColor(window.clear_color.r, window.clear_color.g, window.clear_color.b, window.clear_color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
