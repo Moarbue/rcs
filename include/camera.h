@@ -22,9 +22,9 @@ typedef struct {
     Animation a[CAM_ANIM_ALL];
 } Camera;
 
-Camera *camera(Vec3 target, float distance, float theta, float phi, float zrot);
-void camera_set_orbit_position(Camera *cam, float distance, float theta, float phi, float zrot);
-void camera_add_to_orbit_position(Camera *cam, float distance, float theta, float phi, float zrot);
+Camera *camera(Vec3 target, float distance, float xrot, float yrot, float zrot);
+void camera_set_orbit_position(Camera *cam, float distance, float xrot, float yrot, float zrot);
+void camera_add_to_orbit_position(Camera *cam, float distance, float xrot, float yrot, float zrot);
 void camera_set_target(Camera *cam, Vec3 target);
 void camera_add_to_target(Camera *cam, Vec3 target);
 void camera_set_animation_duration(Camera *cam, Camera_Animation type, float duration);

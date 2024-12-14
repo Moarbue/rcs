@@ -4,7 +4,7 @@
 
 #include <malloc.h>
 
-Camera *camera(Vec3 target, float distance, float theta, float phi, float zrot)
+Camera *camera(Vec3 target, float distance, float xrot, float yrot, float zrot)
 {
     Camera *cam;
     int i;
@@ -18,16 +18,16 @@ Camera *camera(Vec3 target, float distance, float theta, float phi, float zrot)
     }
 
     cam->target = target;
-    cam->dir    = vec3_from_spherical(1.0f, theta, phi);
+    cam->dir    = vec3_from_spherical(1.0f, yrot, xrot);
     cam->dst    = distance;
-    cam->iori   = quat_from_euler_xyz(vec3(phi, theta, zrot));
+    cam->iori   = quat_from_euler_xyz(vec3(xrot, yrot, zrot));
 
     for (i = 0; i < CAM_ANIM_ALL; i++) {
         cam->a[i] = (Animation) {0};
         cam->a[i].efunc = linear;
     }
 
-    camera_set_orbit_position(cam, distance, theta, phi, zrot);
+    camera_set_orbit_position(cam, distance, xrot, yrot, zrot);
     camera_set_target(cam, target);
 
     log_info("Finished creating camera");
@@ -35,14 +35,14 @@ Camera *camera(Vec3 target, float distance, float theta, float phi, float zrot)
     return cam;
 }
 
-void camera_set_orbit_position(Camera *cam, float distance, float theta, float phi, float zrot)
+void camera_set_orbit_position(Camera *cam, float distance, float xrot, float yrot, float zrot)
 {
     Animation *a;
 
     a = &cam->a[CAM_ANIM_ORIENTATION];
     *a = animate_quaternion(
         &cam->iori,
-        quat_from_euler_xyz(vec3(phi, theta, zrot)),
+        quat_from_euler_xyz(vec3(xrot, yrot, zrot)),
         a->duration,
         a->efunc
     );
@@ -56,14 +56,14 @@ void camera_set_orbit_position(Camera *cam, float distance, float theta, float p
     );
 }
 
-void camera_add_to_orbit_position(Camera *cam, float distance, float theta, float phi, float zrot)
+void camera_add_to_orbit_position(Camera *cam, float distance, float xrot, float yrot, float zrot)
 {
     Animation *a;
 
     a = &cam->a[CAM_ANIM_ORIENTATION];
     *a = animate_quaternion(
         &cam->iori,
-        quat_mul(a->data.q.end, quat_from_euler_xyz(vec3(phi, theta, zrot))),
+        quat_mul(a->data.q.end, quat_from_euler_xyz(vec3(xrot, yrot, zrot))),
         a->duration,
         a->efunc
     );
