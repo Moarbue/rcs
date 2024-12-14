@@ -145,6 +145,11 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
         cconf.origin.z -= cconf.side_length + cubie_spacer;
     }
 
+    rubiks_cube_set_move_duration(rc, rcconf->move_duration);
+    rubiks_cube_set_move_cooldownn(rc, rcconf->move_cooldown);
+    rubiks_cube_set_move_easing_func(rc, rcconf->move_easing_func);
+
+
     log_info("Finished generating cubies");
     log_info("Finished generating rubiks cube");
 
