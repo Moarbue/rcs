@@ -52,7 +52,7 @@ int main(void)
     rubiks_cube_set_move_cooldownn(rc, 0.2f);
     rubiks_cube_set_move_easing_func(rc, ease_in_out_sine);
 
-    cam = camera(rcconf.origin, 3, rad(45), rad(30), rad(0));
+    cam = camera(rcconf.origin, 3, rad(30), rad(45), rad(0));
     camera_set_animation_duration(cam, CAM_ANIM_ALL, 0.5f);
     camera_set_animation_easing_func(cam, CAM_ANIM_ALL, ease_in_out_sine);
 
