@@ -32,6 +32,13 @@ int main(void)
     rcconf.width                   = 3;
     rcconf.height                  = 3;
     rcconf.depth                   = 3;
+    rcconf.wobble_height           = 0.05f;
+    rcconf.wobble_duration         = 1.3f;
+    rcconf.wobble_efunc            = ease_in_out_sine;
+    rcconf.scale_duration          = 0.5f;
+    rcconf.scale_efunc             = ease_in_out_sine;
+    rcconf.ori_duration            = 0.5f;
+    rcconf.ori_efunc               = ease_in_out_sine;
     rcconf.face_colors[0]          = color_from_hex(0x000000FF);
     rcconf.face_colors[1]          = color_from_hex(0xB90000FF);
     rcconf.face_colors[2]          = color_from_hex(0xFFD500FF);
@@ -71,26 +78,26 @@ void key_callback(int key, int action, int mods)
         window_toggle_fullscreen();
     }
 
-    // Rotate +-90 degrees about X-Axis
+    // Rotate +-90 degrees about Y-Axis
     if (key == KEY_1 && action == KEY_PRESS) {
-        camera_add_to_orbit_position(cam, 0.0f,  M_PI_2, 0.0f, 0.0f);
+        rubiks_cube_rotate(rc, vec3(0.0f, 1.0f, 0.0f),  M_PI_2);
     }
     if (key == KEY_2 && action == KEY_PRESS) {
-        camera_add_to_orbit_position(cam, 0.0f, -M_PI_2, 0.0f, 0.0f);
+        rubiks_cube_rotate(rc, vec3(0.0f, 1.0f, 0.0f), -M_PI_2);
     }
-    // Rotate +-90 degrees about Y-Axis
+    // Rotate +-90 degrees about X-Axis
     if (key == KEY_3 && action == KEY_PRESS) {
-        camera_add_to_orbit_position(cam, 0.0f, 0.0f,  M_PI_2, 0.0f);
+        rubiks_cube_rotate(rc, vec3(1.0f, 0.0f, 0.0f),  M_PI_2);
     }
     if (key == KEY_4 && action == KEY_PRESS) {
-        camera_add_to_orbit_position(cam, 0.0f, 0.0f, -M_PI_2, 0.0f);
+        rubiks_cube_rotate(rc, vec3(1.0f, 0.0f, 0.0f), -M_PI_2);
     }
     // Rotate +-90 degrees about Z-Axis
     if (key == KEY_5 && action == KEY_PRESS) {
-        camera_add_to_orbit_position(cam, 0.0f, 0.0f, 0.0f,  M_PI_2);
+        rubiks_cube_rotate(rc, vec3(0.0f, 0.0f, 1.0f),  M_PI_2);
     }
     if (key == KEY_6 && action == KEY_PRESS) {
-        camera_add_to_orbit_position(cam, 0.0f, 0.0f, 0.0f, -M_PI_2);
+        rubiks_cube_rotate(rc, vec3(0.0f, 0.0f, 1.0f), -M_PI_2);
     }
 
     // Front moves
