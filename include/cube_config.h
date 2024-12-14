@@ -33,6 +33,10 @@ typedef struct {
 
     float ori_duration;     // duration of the rotation animation (whole cube rotation)
     easing_func *ori_efunc; // easing function of the rotation animation (whole cube rotation)
+
+    float move_duration;            // duration of one move
+    float move_cooldown;            // cooldown between moves, set this to move_duration to do them sequentially
+    easing_func *move_easing_func;  // easing function of the move animation
 } Rubiks_Cube_Config;
 
 #endif // _CUBE_CONFIG_H_
