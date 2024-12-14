@@ -42,7 +42,13 @@ typedef struct {
 
     Vec3 pos;
     Quat ori;
+    Animation ori_anim;
     float scale;
+    Animation scale_anim;
+
+
+    float wobble_height;
+    Animation wobble_anim;
 
     Shader_Program *prog;
 } Rubiks_Cube;
@@ -52,6 +58,8 @@ void rubiks_cube_set_move_duration(Rubiks_Cube *rc, float duration);
 void rubiks_cube_set_move_cooldownn(Rubiks_Cube *rc, float cooldown);
 void rubiks_cube_set_move_easing_func(Rubiks_Cube *rc, easing_func efunc);
 void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cube_Rotation rot, uint64_t slice);
+void rubiks_cube_rotate(Rubiks_Cube *rc, Vec3 axis, float angle);
+void rubiks_cube_scale(Rubiks_Cube *rc, float scale);
 void rubiks_cube_update(Rubiks_Cube *rc, float dt);
 void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj);
 void rubiks_cube_free(Rubiks_Cube *rc);

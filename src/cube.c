@@ -63,6 +63,20 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
     rc->ori   = quat_identity();
     rc->scale = rcconf->scale;
 
+    rc->wobble_height = rcconf->wobble_height;
+    rc->wobble_anim = (Animation) {0};
+    rc->wobble_anim.duration = rcconf->wobble_duration;
+    rc->wobble_anim.efunc = rcconf->wobble_efunc;
+
+    rc->scale_anim = (Animation) {0};
+    rc->scale_anim.duration = rcconf->scale_duration;
+    rc->scale_anim.efunc = rcconf->scale_efunc;
+
+    rc->ori_anim = (Animation) {0};
+    rc->ori_anim.duration = rcconf->ori_duration;
+    rc->ori_anim.efunc = rcconf->ori_efunc;
+    rc->ori_anim.data.q.end = quat_identity();
+
     rc->prog = shader_new(rcconf->vertex_path, rcconf->fragment_path);
     if (rc->prog == NULL) {
         rubiks_cube_free(rc);
@@ -312,6 +326,26 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
     }
 }
 
+void rubiks_cube_rotate(Rubiks_Cube *rc, Vec3 axis, float angle)
+{
+    rc->ori_anim = animate_quaternion(
+        &rc->ori,
+        quat_mul(rc->ori_anim.data.q.end, quat_from_axis_angle(axis, angle)),
+        rc->ori_anim.duration,
+        rc->ori_anim.efunc
+    );
+}
+
+void rubiks_cube_scale(Rubiks_Cube *rc, float scale)
+{
+    rc->scale_anim = animate_scalar(
+        &rc->scale,
+        scale,
+        rc->scale_anim.duration,
+        rc->scale_anim.efunc
+    );
+}
+
 void rubiks_cube_update(Rubiks_Cube *rc, float dt)
 {
     uint64_t ci;
@@ -320,6 +354,21 @@ void rubiks_cube_update(Rubiks_Cube *rc, float dt)
     
     if (rc->mc < rc->mcooldown) rc->mc += dt;
     else rc->mc = rc->mcooldown;
+
+    if (!animation_is_running(&rc->wobble_anim)) {
+        rc->wobble_anim = animate_vector3(
+            &rc->pos,
+            vec3_sub(rc->pos, vec3(0, rc->wobble_height, 0)),
+            rc->wobble_anim.duration,
+            rc->wobble_anim.efunc
+        );
+
+        rc->wobble_height *= -1.0f;
+    }
+
+    update_animation(&rc->wobble_anim, dt);
+    update_animation(&rc->ori_anim, dt);
+    update_animation(&rc->scale_anim, dt);
 }
 
 void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
@@ -328,7 +377,7 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
     Mat4 m, mvp;
 
     m = mat4_translation(rc->pos);
-    quat_rotatem4_at(&m, rc->ori, rc->pos);
+    quat_rotatem4(&m, rc->ori);
     mat4_scale_s(&m, rc->scale);
 
     m = mat4_mul(view_proj, m);
@@ -336,8 +385,8 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
     shader_bind(rc->prog);
 
     for (i = 0; i < rc->cubie_count; i++) {
-        mvp = m;
-        quat_rotatem4_at(&mvp, rc->cubies[i].ori, rc->pos);
+        mvp = mat4_copy(m);
+        quat_rotatem4(&mvp, rc->cubies[i].ori);
         shader_set_uniform_mat4(rc->prog, "mvp", mvp.raw, GL_FALSE);
 
         glBindVertexArray(rc->cubies[i].vao);
