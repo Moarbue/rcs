@@ -6,14 +6,14 @@
 #include <inttypes.h>
 #include <string.h>
 
-void rotate_matrix_cw (uint64_t *a, uint64_t width, uint64_t height, uint64_t xstride, uint64_t ystride, uint64_t top_left);
-void rotate_matrix_ccw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xstride, uint64_t ystride, uint64_t top_left);
-void rotate_matrix_180(uint64_t *a, uint64_t width, uint64_t height, uint64_t xstride, uint64_t ystride, uint64_t top_left);
+void rotate_matrix_cw (uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index);
+void rotate_matrix_ccw(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index);
+void rotate_matrix_180(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index);
 
 Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
 {
     Rubiks_Cube *rc;
-    uint64_t corners, edges, center, w, h, d, ci, i;
+    uint64_t cw, ch, cd, w, h, d, ci, i;
     float cubie_spacer;
     Vec3 model_origin;
     Cubie_Config cconf;
@@ -26,33 +26,31 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
         return NULL;
     }
 
-    // TODO: support different side lengths, by expanding cubie_indices array
-    if (rcconf->width != rcconf->height || rcconf->width != rcconf->depth) {
-        rc->w = rc->h = rc->d = u64max(rcconf->width, u64max(rcconf->height, rcconf->depth));
-        log_warning("Only cubes with uniform side length are currently supported, changing side length to %" PRIu64, rc->w);
-    } else {
-        rc->w = rcconf->width;
-        rc->h = rcconf->height;
-        rc->d = rcconf->depth;
-    }
+    rc->w = rcconf->width;
+    rc->h = rcconf->height;
+    rc->d = rcconf->depth;
 
-    rc->cubie_indices = (uint64_t *) malloc(rc->w*rc->h*rc->d * sizeof (uint64_t));
+    // take the longest side to ensure rotation always works, non existent indices are filled with dummy indices
+    rc->max_length = u64max(rc->w, u64max(rc->h, rc->d));
+
+    rc->cubie_indices = (uint64_t *) malloc(rc->max_length*rc->max_length*rc->max_length * sizeof (uint64_t));
     if (rc->cubie_indices == NULL) {
         log_error("Failed to allocate memory for cubie indices");
         rubiks_cube_free(rc);
         return NULL;
     }
 
-    // TODO: maybe precompute rc->w - 2, etc.
-    corners = 8;    // cube has always 8 corner cubies
-    edges   = 4 * (rc->w - 2 + rc->h - 2 + rc->d - 2);  // side length - 2 corner stones * 4 edges per dimension
-    center  = 2 * ((rc->w - 2)*(rc->h - 2) + (rc->w - 2)*(rc->d - 2) + (rc->h - 2)*(rc->d - 2)); // 6 smaller rectangles without corners and edges
+    rc->cubie_count = rc->w*rc->h*rc->d;
+    // there are cubies that aren't visible so subtract them from the total count
+    if (rc->w > 2 && rc->h > 2 && rc->d > 2) {
+        cw = rc->w - 2; ch = rc->h - 2; cd = rc->d - 2;
+        rc->cubie_count -= cw*ch*cd;
+    }
 
-    // Don't forget to change statement once variable side lengths are supported
-    if (rc->w == 1)
-        rc->cubie_count = 1;
-    else
-        rc->cubie_count = corners + edges + center;
+    // TODO: when rotating width/height/depth changes layer-wise, so cube needs to store dimensions layer-wise
+    if (rc->w != rc->h || rc->w != rc->d) {
+        log_warning("Variable side lengths are only supported experimentally, rotating will not work as intended!");
+    }
 
     rc->cubies = (Cubie *) malloc(rc->cubie_count * sizeof (Cubie));
     if (rc->cubies == NULL) {
@@ -76,7 +74,7 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
 
     log_info("Generating cubies...");
 
-    cconf.side_length = 1.0f / (float)u64max(rc->w, u64max(rc->h, rc->d));
+    cconf.side_length = 1.0f / (float)rc->max_length;
     cubie_spacer = cconf.side_length * rcconf->cubie_spacer_multiplier;
 
     model_origin = vec3(
@@ -91,35 +89,38 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
 
     memcpy(cconf.face_colors, rcconf->face_colors, CUBE_COLOR_COUNT * sizeof (Color));
 
+    for (i = 0; i < rc->max_length*rc->max_length*rc->max_length; i++)
+        rc->cubie_indices[i] = rc->cubie_count;
+
     ci = 0;
     for (d = 0; d < rc->d; d++) {
         for (h = 0; h < rc->h; h++) {
             for (w = 0; w < rc->w; w++) {
 
-                i = d*rc->h*rc->w + h*rc->w + w;
                 // Check if cubie is visible
                 if (w > 0 && w < rc->w - 1 &&
                     h > 0 && h < rc->h - 1 &&
                     d > 0 && d < rc->d - 1) {
                         
-                        rc->cubie_indices[i] = rc->cubie_count;
-                        cconf.origin.x += cconf.side_length + cubie_spacer;
-                        continue;
-                    }
-                    rc->cubie_indices[i] = ci;
-
-                    cconf.color_mask = 0;
-
-                    if (d == 0)         cconf.color_mask |= COLOR_MASK_FRONT;
-                    if (h == 0)         cconf.color_mask |= COLOR_MASK_UP;
-                    if (w == 0)         cconf.color_mask |= COLOR_MASK_LEFT;
-                    if (d == rc->d - 1) cconf.color_mask |= COLOR_MASK_BACK;
-                    if (h == rc->h - 1) cconf.color_mask |= COLOR_MASK_DOWN;
-                    if (w == rc->w - 1) cconf.color_mask |= COLOR_MASK_RIGHT;
-                    
-                    rc->cubies[ci++] = cubie(&cconf);
-
                     cconf.origin.x += cconf.side_length + cubie_spacer;
+                    continue;
+                }
+                    
+                i = d*rc->h*rc->w + h*rc->w + w;
+                rc->cubie_indices[i] = ci;
+
+                cconf.color_mask = 0;
+
+                if (d == 0)         cconf.color_mask |= COLOR_MASK_FRONT;
+                if (h == 0)         cconf.color_mask |= COLOR_MASK_UP;
+                if (w == 0)         cconf.color_mask |= COLOR_MASK_LEFT;
+                if (d == rc->d - 1) cconf.color_mask |= COLOR_MASK_BACK;
+                if (h == rc->h - 1) cconf.color_mask |= COLOR_MASK_DOWN;
+                if (w == rc->w - 1) cconf.color_mask |= COLOR_MASK_RIGHT;
+                
+                rc->cubies[ci++] = cubie(&cconf);
+
+                cconf.origin.x += cconf.side_length + cubie_spacer;
             }
 
             cconf.origin.x  = model_origin.x;
@@ -156,16 +157,11 @@ void rubiks_cube_set_move_easing_func(Rubiks_Cube *rc, easing_func efunc)
         cubie_set_animation_easing_func(&rc->cubies[ci], efunc);
 }
 
-void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cube_Rotation rot, uint64_t top_left)
+void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cube_Rotation rot, uint64_t slice)
 {
     Vec3 a;
     float r;
-    uint64_t width, height, x, y, xstride, ystride, ci;
-
-    if (top_left >= rc->d*rc->h*rc->w) {
-        log_warning("top_left index is out of range...");
-        return;
-    }
+    uint64_t start_index, width, height, x, y, xstride, ystride, ci;
 
     if (rc->mc < rc->mcooldown) return;
     rc->mc = 0.0f;
@@ -175,6 +171,11 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
 
     switch (face) {
         case FACE_FRONT:
+            if (slice >= rc->d) {
+                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Front rotation", slice, rc->d);
+                return;
+            }
+            start_index = slice*rc->w*rc->h;
             a = vec3(0.0f, 0.0f, 1.0f);
             width   = rc->w;
             height  = rc->h;
@@ -183,6 +184,11 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         break;
 
         case FACE_UP:
+            if (slice >= rc->h) {
+                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Up rotation", slice, rc->h);
+                return;
+            }
+            start_index = (rc->d-1)*rc->h*rc->w + slice*rc->w;
             a = vec3(0.0f, 1.0f, 0.0f);
             width   = rc->w;
             height  = rc->d;
@@ -191,6 +197,11 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         break;
 
         case FACE_LEFT:
+            if (slice >= rc->w) {
+                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Left rotation", slice, rc->w);
+                return;
+            }
+            start_index = (rc->d-1)*rc->h*rc->w + slice;
             a = vec3(-1.0f, 0.0f, 0.0f);
             width   = rc->d;
             height  = rc->h;
@@ -199,6 +210,11 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         break;
 
         case FACE_BACK:
+            if (slice >= rc->d) {
+                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Back rotation", slice, rc->d);
+                return;
+            }
+            start_index = (rc->d-1-slice)*rc->h*rc->w + (rc->w-1);
             a = vec3(0.0f, 0.0f, -1.0f);
             width   = rc->w;
             height  = rc->h;
@@ -207,6 +223,11 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         break;
 
         case FACE_DOWN:
+            if (slice >= rc->h) {
+                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Down rotation", slice, rc->h);
+                return;
+            }
+            start_index = (rc->h-1-slice)*(rc->w);
             a = vec3(0.0f, -1.0f, 0.0f);
             width   = rc->w;
             height  = rc->d;
@@ -215,6 +236,11 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         break;
 
         case FACE_RIGHT:
+            if (slice >= rc->w) {
+                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Right rotation", slice, rc->w);
+                return;
+            }
+            start_index = (rc->w-1-slice);
             a = vec3(1.0f, 0.0f, 0.0f);
             width   = rc->d;
             height  = rc->h;
@@ -225,7 +251,7 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
 
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            ci = y * ystride + x * xstride + top_left;
+            ci = y * ystride + x * xstride + start_index;
 
             ci = rc->cubie_indices[ci];
             if (ci != rc->cubie_count)
@@ -233,17 +259,55 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         }
     }
 
+    switch (face) {
+        case FACE_FRONT:
+            start_index = slice*rc->max_length*rc->max_length;
+            xstride = 1;
+            ystride = rc->max_length;
+        break;
+
+        case FACE_UP:
+            start_index = (rc->max_length-1)*rc->max_length*rc->max_length + slice*rc->max_length;
+            xstride = 1;
+            ystride = -rc->max_length*rc->max_length;
+        break;
+
+        case FACE_LEFT:
+            start_index = (rc->max_length-1)*rc->max_length*rc->max_length + slice;
+            xstride = -rc->max_length*rc->max_length;
+            ystride = rc->max_length;
+        break;
+
+        case FACE_BACK:
+            start_index = (rc->max_length-1-slice)*rc->max_length*rc->max_length + (rc->max_length-1);
+            xstride = -1;
+            ystride = rc->max_length;
+        break;
+
+        case FACE_DOWN:
+            start_index = (rc->max_length-1-slice)*(rc->max_length);
+            xstride = 1;
+            ystride = rc->max_length*rc->max_length;
+        break;
+
+        case FACE_RIGHT:
+            start_index = (rc->max_length-1-slice);
+            xstride = rc->max_length*rc->max_length;
+            ystride = rc->max_length;
+        break;
+    }
+
     switch (rot) {
         case ROTATION_CCW:
-            rotate_matrix_ccw(rc->cubie_indices, width, height, xstride, ystride, top_left);
+            rotate_matrix_ccw(rc->cubie_indices, rc->max_length, xstride, ystride, start_index);
         break;
         
         case ROTATION_180:
-            rotate_matrix_180(rc->cubie_indices, width, height, xstride, ystride, top_left);
+            rotate_matrix_180(rc->cubie_indices, rc->max_length, xstride, ystride, start_index);
         break;
         
         case ROTATION_CW:
-            rotate_matrix_cw(rc->cubie_indices, width, height, xstride, ystride, top_left);
+            rotate_matrix_cw (rc->cubie_indices, rc->max_length, xstride, ystride, start_index);
         break;
     }
 }
@@ -304,16 +368,16 @@ void rubiks_cube_free(Rubiks_Cube *rc)
     free(rc);
 }
 
-void rotate_matrix_cw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xstride, uint64_t ystride, uint64_t top_left)
+void rotate_matrix_cw(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index)
 {
     uint64_t x, y, tmp, i1, i2;
 
     // transpose matrix
-    for (y = 0; y < height; y++) {
-        for (x = y+1; x < width; x++) {
+    for (y = 0; y < dimension; y++) {
+        for (x = y+1; x < dimension; x++) {
             // compute indices
-            i1 = y*ystride + x*xstride + top_left;
-            i2 = x*ystride + y*xstride + top_left;
+            i1 = y*ystride + x*xstride + start_index;
+            i2 = x*ystride + y*xstride + start_index;
 
             // swap elements
             tmp   = a[i1];
@@ -323,11 +387,11 @@ void rotate_matrix_cw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xst
     }
 
     // change cols
-    for (x = 0; x < width / 2; x++) {
-        for (y = 0; y < width; y++) {
+    for (x = 0; x < dimension / 2; x++) {
+        for (y = 0; y < dimension; y++) {
             // compute indices
-            i1 = y*ystride +           x*xstride + top_left;
-            i2 = y*ystride + (width-1-x)*xstride + top_left;
+            i1 = y*ystride +               x*xstride + start_index;
+            i2 = y*ystride + (dimension-1-x)*xstride + start_index;
 
             // swap elements
             tmp   = a[i1];
@@ -337,16 +401,16 @@ void rotate_matrix_cw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xst
     }
 }
 
-void rotate_matrix_ccw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xstride, uint64_t ystride, uint64_t top_left)
+void rotate_matrix_ccw(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index)
 {
     uint64_t x, y, tmp, i1, i2;
 
     // transpose matrix
-    for (y = 0; y < height; y++) {
-        for (x = y+1; x < width; x++) {
+    for (y = 0; y < dimension; y++) {
+        for (x = y+1; x < dimension; x++) {
             // compute indices
-            i1 = y*ystride + x*xstride + top_left;
-            i2 = x*ystride + y*xstride + top_left;
+            i1 = y*ystride + x*xstride + start_index;
+            i2 = x*ystride + y*xstride + start_index;
 
             // swap elements
             tmp   = a[i1];
@@ -356,11 +420,11 @@ void rotate_matrix_ccw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xs
     }
 
     // change rows
-    for (y = 0; y < height / 2; y++) {
-        for (x = 0; x < width; x++) {
+    for (y = 0; y < dimension / 2; y++) {
+        for (x = 0; x < dimension; x++) {
             // compute indices
-            i1 = y*ystride            + x*xstride + top_left;
-            i2 = (height-1-y)*ystride + x*xstride + top_left;
+            i1 = y*ystride               + x*xstride + start_index;
+            i2 = (dimension-1-y)*ystride + x*xstride + start_index;
 
             // swap elements
             tmp   = a[i1];
@@ -370,15 +434,15 @@ void rotate_matrix_ccw(uint64_t *a, uint64_t width, uint64_t height, uint64_t xs
     }
 }
 
-void rotate_matrix_180(uint64_t *a, uint64_t width, uint64_t height, uint64_t xstride, uint64_t ystride, uint64_t top_left)
+void rotate_matrix_180(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index)
 {
     uint64_t x, y, tmp, i1, i2;
 
-    for (y = 0; y < height / 2; y++) {
-        for (x = 0; x < width; x++) {
+    for (y = 0; y < dimension / 2; y++) {
+        for (x = 0; x < dimension; x++) {
             // compute indices
-            i1 = y*ystride            + x*xstride           + top_left;
-            i2 = (height-1-y)*ystride + (width-1-x)*xstride + top_left;
+            i1 = y*ystride               +               x*xstride + start_index;
+            i2 = (dimension-1-y)*ystride + (dimension-1-x)*xstride + start_index;
 
             // swap elements
             tmp   = a[i1];
@@ -387,13 +451,13 @@ void rotate_matrix_180(uint64_t *a, uint64_t width, uint64_t height, uint64_t xs
         }
     }
 
-    if (height % 2 == 0) return;
+    if (dimension % 2 == 0) return;
 
     // handle middle row
-    for (x = 0; x < width / 2; x++) {
+    for (x = 0; x < dimension / 2; x++) {
         // compute indices
-        i1 = (height/2)*ystride   +           x*xstride + top_left;
-        i2 = (height/2)*ystride   + (width-1-x)*xstride + top_left;
+        i1 = (dimension/2)*ystride   +               x*xstride + start_index;
+        i2 = (dimension/2)*ystride   + (dimension-1-x)*xstride + start_index;
 
         // swap elements
         tmp   = a[i1];
