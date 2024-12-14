@@ -27,7 +27,8 @@ OBJ := $(BIN_DIR)/main.o 		\
 	   $(BIN_DIR)/cubie.o		\
 	   $(BIN_DIR)/cube.o		\
 	   $(BIN_DIR)/animation.o	\
-	   $(BIN_DIR)/camera.o
+	   $(BIN_DIR)/camera.o		\
+	   $(BIN_DIR)/config.o
 
 OBJ += $(BIN_DIR)/gl.o
 
