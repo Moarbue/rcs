@@ -15,7 +15,7 @@ Camera *cam;
 
 int main(void)
 {
-    set_logging_level(LOG_DEBUG);
+    set_logging_level(LOG_INFO);
 
     window_init(800, 600, "Rubiks Cube Simulation", 1);
     window_set_key_callback(key_callback);
@@ -106,91 +106,91 @@ void key_callback(int key, int action, int mods)
 
     // Up moves
     if (key == KEY_U && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CCW, (rc->d-1)*rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CCW, 0);
     }
     if (key == KEY_U && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_180, (rc->d-1)*rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_180, 0);
     }
     if (key == KEY_U && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CW,  (rc->d-1)*rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CW,  0);
     }
 
     // Left moves
     if (key == KEY_L && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, (rc->d-1)*rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, 0);
     }
     if (key == KEY_L && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, (rc->d-1)*rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, 0);
     }
     if (key == KEY_L && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  (rc->d-1)*rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  0);
     }
 
     // Back moves
     if (key == KEY_B && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CCW, (rc->d-1)*rc->h*rc->w + (rc->w-1));
+        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CCW, 0);
     }
     if (key == KEY_B && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_180, (rc->d-1)*rc->h*rc->w + (rc->w-1));
+        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_180, 0);
     }
     if (key == KEY_B && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CW,  (rc->d-1)*rc->h*rc->w + (rc->w-1));
+        rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CW,  0);
     }
 
     // Down moves
     if (key == KEY_D && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, (rc->h-1)*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, 0);
     }
     if (key == KEY_D && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, (rc->h-1)*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, 0);
     }
     if (key == KEY_D && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  (rc->h-1)*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  0);
     }
 
     // Right moves
     if (key == KEY_R && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CCW, rc->w-1);
+        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CCW, 0);
     }
     if (key == KEY_R && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_180, rc->w-1);
+        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_180, 0);
     }
     if (key == KEY_R && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CW,  rc->w-1);
+        rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CW,  0);
     }
 
 
     // S moves
     if (key == KEY_S && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CCW, rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CCW, 1);
     }
     if (key == KEY_S && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_180, rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_180, 1);
     }
     if (key == KEY_S && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CW,  rc->h*rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CW,  1);
     }
 
     // E moves
     if (key == KEY_E && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, 1);
     }
     if (key == KEY_E && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, 1);
     }
     if (key == KEY_E && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  rc->w);
+        rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  1);
     }
 
     // M moves
     if (key == KEY_M && (mods & MOD_CONTROL) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, (rc->d-1)*rc->h*rc->w + 1);
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, 1);
     }
     if (key == KEY_M && (mods & MOD_SHIFT) && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, (rc->d-1)*rc->h*rc->w + 1);
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, 1);
     }
     if (key == KEY_M && action == KEY_PRESS) {
-        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  (rc->d-1)*rc->h*rc->w + 1);
+        rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  1);
     }
 }
 
