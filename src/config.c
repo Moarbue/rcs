@@ -61,8 +61,8 @@ Config config_default(void)
     conf.default_cam_anim_duration = 0.5f;
     conf.default_cam_anim_efunc    = ease_in_out_sine;
 
-    conf.rcconf.cubie_spacer_multiplier   = 0.03f;
-    conf.rcconf.face_length_multiplier    = 0.95f;
+    conf.rcconf.cubie_spacer_multiplier   = 0.0f;
+    conf.rcconf.face_length_multiplier    = 0.92f;
     conf.rcconf.face_offset_from_cubie    = 1e-3f;
     conf.rcconf.vertex_path               = "shaders/cube.vert";
     conf.rcconf.fragment_path             = "shaders/cube.frag";
