@@ -34,17 +34,17 @@ void window_size_callback_wrapper(GLFWwindow *win, int width, int height)
     if (window_is_fullscreen()) {
         log_debug("window size changed, width: %d -> %d, height: %d -> %d", window.width, width, window.height, height);
         was_fullscreen = 1;
-        return;
     } else if (was_fullscreen) {
         // window changed from fullscreen to windowed, so window_get_width()/height() will already return the new width/height
         log_debug("window size changed, width: %d -> %d, height: %d -> %d", window.mode->width, width, window.mode->height, height);
         was_fullscreen = 0;
+        window.width  = width;
+        window.height = height;
     } else {
         log_debug("window size changed, width: %d -> %d, height: %d -> %d", window_get_width(), width, window_get_height(), height);
+        window.width  = width;
+        window.height = height;
     }
-
-    window.width  = width;
-    window.height = height;
 
     (*window.wsbcallback)(width, height);
 
