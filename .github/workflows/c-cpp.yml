@@ -25,9 +25,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: install clang and make
-      uses: chocolatey-community/actions/install@v1
+      uses: crazy-max/ghaction-chocolatey@v3.3.0
       with:
-        packages: llvm, make
+        args: install llvm make -y
     - name: add llvm to PATH
       run: echo "C:\Program Files\LLVM\bin" >> $GITHUB_PATH
     - name: build rcs with clang
