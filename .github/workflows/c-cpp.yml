@@ -1,0 +1,33 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libglfw3-dev clang
+    - name: build rcs with gcc
+      run: make CC=gcc
+    - name: build rcs with clang
+      run: make CC=clang
+      
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: install MinGW
+      uses: egor-tensin/setup-mingw@v2
+    - name: Add MinGW to PATH
+      run: |
+        echo "C:\Program Files\mingw-w64\bin" >> $GITHUB_PATH
+    - name: build rcs
+      run: make CC=gcc
