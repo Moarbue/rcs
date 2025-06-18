@@ -20,15 +20,16 @@ jobs:
     - name: build rcs with clang
       run: make clean all CC=clang
       
-  build-windows:
+  build-windows-mingw:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: install clang and make
+    - name: install mingw and make
       uses: crazy-max/ghaction-chocolatey@v3.3.0
       with:
-        args: install llvm make -y
-    - name: add llvm to PATH
-      run: echo "C:\Program Files\LLVM\bin" >> $GITHUB_PATH
-    - name: build rcs with clang
-      run: make clean all CC=clang
+        args: install mingw make -y
+    - name: add mingw to PATH
+      run: |
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
+    - name: build rcs with mingw
+      run: make clean all CC=gcc
