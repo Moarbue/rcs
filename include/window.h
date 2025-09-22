@@ -22,6 +22,7 @@ void  window_set_clear_color(Color c);
 void  window_clear(void);
 void  window_main_loop(Render_Function render_frame);
 float window_get_frame_time(void);
+void  window_set_fps(int fps);
 void  window_close(void);
 
 

@@ -3,6 +3,7 @@
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "logging.h"
+#include "util.h"
 
 typedef struct {
     GLFWwindow *win;
@@ -13,6 +14,8 @@ typedef struct {
     int x, y, width, height;
     GLFWmonitor *mon;
     GLFWvidmode *mode;
+
+    float min_frame_time, frame_time;
 
     Color clear_color;
 } Window;
@@ -96,6 +99,9 @@ void window_init(int width, int height, const char *title, int fullscreen)
     window.wsbcallback = window_size_callback_default;
 
     window.render_func = render_func_default;
+
+    window.min_frame_time = 0.f;
+    window.frame_time = 0.f;
 
     glfwGetWindowSize(window.win, &window.width, &window.height);
     glfwGetWindowPos(window.win, &window.x, &window.y);
@@ -220,28 +226,36 @@ void window_clear(void)
 
 void window_main_loop(Render_Function render_frame)
 {
+    float now;
+    static float last_time = 0.0f;
+
     window.render_func = render_frame;
 
     while(!window_should_close()) {
-        (*window.render_func)();
+        now = glfwGetTime();
 
-        // Poll events and swap buffers in background
-        glfwPollEvents();
-        glfwSwapBuffers(window.win);
+        if ((now - last_time) >= window.min_frame_time) {
+            (*window.render_func)();
+
+            // Poll events and swap buffers in background
+            glfwPollEvents();
+            glfwSwapBuffers(window.win);
+
+            window.frame_time = now - last_time;
+            last_time = now;
+        }
     }
 }
 
 float window_get_frame_time(void)
 {
-    float now, dt;
-    static float last_time = 0.0f;
+    return window.frame_time;
+}
 
-    // First call to this is not the actual frame time since last_time starts out at 0
-    now       = glfwGetTime();
-    dt        = now - last_time;
-    last_time = now;
-
-    return dt;
+void window_set_fps(int fps)
+{
+    if (fps <= 0) window.min_frame_time = 0;
+    else window.min_frame_time = 1.f / (float) fps;
 }
 
 void window_close(void)
