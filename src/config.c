@@ -48,7 +48,7 @@ Config config_default(void)
     conf.fullscreen            = 1;
     conf.default_window_width  = 800;
     conf.default_window_height = 600;
-    conf.fps           = 60;
+    conf.fps           = 90;
 
     conf.fov   = rad(45.0f);
     conf.nearZ = 0.01f;
@@ -68,7 +68,7 @@ Config config_default(void)
     conf.rcconf.vertex_path               = "shaders/cube.vert";
     conf.rcconf.fragment_path             = "shaders/cube.frag";
     conf.rcconf.scale                     = 1.0f;
-    conf.rcconf.origin                    = vec3s(0.0f);
+    conf.rcconf.origin                    = vec3(0.0f, 0.3f, 0.0f);
     conf.rcconf.width                     = 3;
     conf.rcconf.height                    = 3;
     conf.rcconf.depth                     = 3;
