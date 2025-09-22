@@ -68,7 +68,7 @@ void font_load(const char *font_path)
 
 
     // default font size is 32pt
-    FT_Set_Char_Size(face, 0, 32*64, 0, 0);
+    FT_Set_Char_Size(face, 0, 128*64, 0, 0);
 
     log_info("Loading font characters...");
 
@@ -170,7 +170,7 @@ void render_text(Vec2 pos, float size, Color col, char *fmt, ...)
         g = tr.fonts[tr.active_font].glyphs[(int) buf[i]];
 
         float xpos = pos.x + g.bearing.x * size;
-        float ypos = pos.y - (g.size.y - g.bearing.y) * size;
+        float ypos = pos.y + (g.size.y - g.bearing.y) * size;
 
         float w =  g.size.x * size;
         float h = -g.size.y * size;
@@ -225,7 +225,7 @@ int get_text_width(float size, char *fmt, ...)
         Glyph g;
         g = tr.fonts[tr.active_font].glyphs[(int) buf[i]];
 
-        width += (g.bearing.x + g.size.x + (g.advance >> 6)) * size;
+        width += (g.advance >> 6) * size;
     }
 
     return (int) width;
@@ -256,7 +256,7 @@ int get_text_height(float size, char *fmt, ...)
         Glyph g;
         g = tr.fonts[tr.active_font].glyphs[(int) buf[i]];
 
-        height = max(height, ((g.size.y - g.bearing.y) + g.size.y) * size);
+        height = max(height, g.size.y * size);
     }
 
     return (int) height;
