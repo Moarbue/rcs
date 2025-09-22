@@ -1,3 +1,4 @@
+#include "animation.h"
 #include "camera.h"
 #include "config.h"
 #include "cube.h"
@@ -5,6 +6,8 @@
 #include "logging.h"
 #include "smath.h"
 #include "window.h"
+
+#include <string.h>
 
 void key_callback(int key, int action, int mods);
 void window_size_callback(int width, int height);
@@ -16,6 +19,9 @@ Config conf;
 Mat4 proj, view_proj, ortho;
 Camera *cam;
 Rubiks_Cube *rc;
+Animation text_opacity_anim;
+float text_opacity;
+char move[3] = {0};
 
 int main(void)
 {
@@ -85,178 +91,310 @@ void key_callback(int key, int action, int mods)
     if (key  == conf.keys[KEY_ROTATE_CUBE_POS_90_X].key &&
         mods == conf.keys[KEY_ROTATE_CUBE_POS_90_X].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "x'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate(rc, vec3(1.0f, 0.0f, 0.0f),  M_PI_2);
     }
     if (key  == conf.keys[KEY_ROTATE_CUBE_NEG_90_X].key &&
         mods == conf.keys[KEY_ROTATE_CUBE_NEG_90_X].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "x");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate(rc, vec3(1.0f, 0.0f, 0.0f), -M_PI_2);
     }
 
     if (key  == conf.keys[KEY_ROTATE_CUBE_POS_90_Y].key &&
         mods == conf.keys[KEY_ROTATE_CUBE_POS_90_Y].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "y'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate(rc, vec3(0.0f, 1.0f, 0.0f),  M_PI_2);
     }
     if (key  == conf.keys[KEY_ROTATE_CUBE_NEG_90_Y].key &&
         mods == conf.keys[KEY_ROTATE_CUBE_NEG_90_Y].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "y");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate(rc, vec3(0.0f, 1.0f, 0.0f), -M_PI_2);
     }
 
     if (key  == conf.keys[KEY_ROTATE_CUBE_POS_90_Z].key &&
         mods == conf.keys[KEY_ROTATE_CUBE_POS_90_Z].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "z'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate(rc, vec3(0.0f, 0.0f, 1.0f),  M_PI_2);
     }
     if (key  == conf.keys[KEY_ROTATE_CUBE_NEG_90_Z].key &&
         mods == conf.keys[KEY_ROTATE_CUBE_NEG_90_Z].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "z");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate(rc, vec3(0.0f, 0.0f, 1.0f), -M_PI_2);
     }
 
 
     if (key  == conf.keys[KEY_ROTATE_FRONT_CW].key  &&
         mods == conf.keys[KEY_ROTATE_FRONT_CW].mod  && action == KEY_PRESS) {
-            
+        
+        text_opacity = 255.f;
+        strcpy(move, "F");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CW,  0);
     }
     if (key  == conf.keys[KEY_ROTATE_FRONT_180].key &&
         mods == conf.keys[KEY_ROTATE_FRONT_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "F2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_180, 0);
     }
     if (key  == conf.keys[KEY_ROTATE_FRONT_CCW].key &&
         mods == conf.keys[KEY_ROTATE_FRONT_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "F'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CCW, 0);
     }
 
     if (key  == conf.keys[KEY_ROTATE_UP_CW].key  &&
         mods == conf.keys[KEY_ROTATE_UP_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "U");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CW,  0);
     }
     if (key  == conf.keys[KEY_ROTATE_UP_180].key &&
         mods == conf.keys[KEY_ROTATE_UP_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "U2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_180, 0);
     }
     if (key  == conf.keys[KEY_ROTATE_UP_CCW].key &&
         mods == conf.keys[KEY_ROTATE_UP_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "U'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_UP, ROTATION_CCW, 0);
     }
 
     if (key  == conf.keys[KEY_ROTATE_LEFT_CW].key  &&
         mods == conf.keys[KEY_ROTATE_LEFT_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "L");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  0);
     }
     if (key  == conf.keys[KEY_ROTATE_LEFT_180].key &&
         mods == conf.keys[KEY_ROTATE_LEFT_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "L2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, 0);
     }
     if (key  == conf.keys[KEY_ROTATE_LEFT_CCW].key &&
         mods == conf.keys[KEY_ROTATE_LEFT_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "L'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, 0);
     }
 
     if (key  == conf.keys[KEY_ROTATE_BACK_CW].key  &&
         mods == conf.keys[KEY_ROTATE_BACK_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "B");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CW,  0);
     }
     if (key  == conf.keys[KEY_ROTATE_BACK_180].key &&
         mods == conf.keys[KEY_ROTATE_BACK_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "B2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_180, 0);
     }
     if (key  == conf.keys[KEY_ROTATE_BACK_CCW].key &&
         mods == conf.keys[KEY_ROTATE_BACK_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "B'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_BACK, ROTATION_CCW, 0);
     }
 
     if (key  == conf.keys[KEY_ROTATE_DOWN_CW].key  &&
         mods == conf.keys[KEY_ROTATE_DOWN_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "D");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  0);
     }
     if (key  == conf.keys[KEY_ROTATE_DOWN_180].key &&
         mods == conf.keys[KEY_ROTATE_DOWN_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "D2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, 0);
     }
     if (key  == conf.keys[KEY_ROTATE_DOWN_CCW].key &&
         mods == conf.keys[KEY_ROTATE_DOWN_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "D'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, 0);
     }
 
     if (key  == conf.keys[KEY_ROTATE_RIGHT_CW].key  &&
         mods == conf.keys[KEY_ROTATE_RIGHT_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "R");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CW,  0);
     }
     if (key  == conf.keys[KEY_ROTATE_RIGHT_180].key &&
         mods == conf.keys[KEY_ROTATE_RIGHT_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "R2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_180, 0);
     }
     if (key  == conf.keys[KEY_ROTATE_RIGHT_CCW].key &&
         mods == conf.keys[KEY_ROTATE_RIGHT_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "R'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_RIGHT, ROTATION_CCW, 0);
     }
 
     if (key  == conf.keys[KEY_ROTATE_M_CW].key  &&
         mods == conf.keys[KEY_ROTATE_M_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "M");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CW,  1);
     }
     if (key  == conf.keys[KEY_ROTATE_M_180].key &&
         mods == conf.keys[KEY_ROTATE_M_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "M2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_180, 1);
     }
     if (key  == conf.keys[KEY_ROTATE_M_CCW].key &&
         mods == conf.keys[KEY_ROTATE_M_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "M'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_LEFT, ROTATION_CCW, 1);
     }
 
     if (key  == conf.keys[KEY_ROTATE_E_CW].key  &&
         mods == conf.keys[KEY_ROTATE_E_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "E");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CW,  1);
     }
     if (key  == conf.keys[KEY_ROTATE_E_180].key &&
         mods == conf.keys[KEY_ROTATE_E_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "E2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_180, 1);
     }
     if (key  == conf.keys[KEY_ROTATE_E_CCW].key &&
         mods == conf.keys[KEY_ROTATE_E_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "E'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_DOWN, ROTATION_CCW, 1);
     }
 
     if (key  == conf.keys[KEY_ROTATE_S_CW].key  &&
         mods == conf.keys[KEY_ROTATE_S_CW].mod  && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "S");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CW,  1);
     }
     if (key  == conf.keys[KEY_ROTATE_S_180].key &&
         mods == conf.keys[KEY_ROTATE_S_180].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "S2");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_180, 1);
     }
     if (key  == conf.keys[KEY_ROTATE_S_CCW].key &&
         mods == conf.keys[KEY_ROTATE_S_CCW].mod && action == KEY_PRESS) {
             
+        text_opacity = 255.f;
+        strcpy(move, "S'");
+        text_opacity_anim = animate_scalar(&text_opacity, 0.f, 1.f, ease_out_sine);
+
         rubiks_cube_rotate_slice(rc, FACE_FRONT, ROTATION_CCW, 1);
     }
 }
@@ -283,5 +421,29 @@ void render_frame(void)
 
     window_clear();
     rubiks_cube_draw(rc, view_proj);
-    render_text((Vec2) {30, 50}, 1.5f, color_from_hex(0xFF0000FF), "FPS: %3u",  (unsigned int) roundf(1.f / dt));
+
+    int ww, wh;
+    ww = window_get_width();
+    wh = window_get_height();
+
+    char text[9] = {0};
+    sprintf(text, "FPS: %3u", (unsigned int) roundf(1.0f/dt));
+
+    float ts; int tw, th; Vec2 tp; Color tc;
+    ts = ww*2.5e-4;
+    tw = get_text_width(ts, text);
+    th = get_text_height(ts, text);
+    tp = vec2(ww*0.01, ww*0.01 + th);
+    tc = color_from_hex(0xFF4412FF);
+    render_text(tp, ts, tc, text);
+
+    update_animation(&text_opacity_anim, dt);
+    if (animation_is_running(&text_opacity_anim)) {
+        ts = ww*4e-4;
+        tw = get_text_width(ts, move);
+        th = get_text_height(ts, move);
+        tp = vec2((ww - tw)*0.5f, wh*0.85 + th);
+        tc = color_from_rgba(255, 68, 18, text_opacity);
+        render_text(tp, ts, tc, move);
+    }
 }
