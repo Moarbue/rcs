@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "config.h"
 #include "cube.h"
+#include "font.h"
 #include "logging.h"
 #include "smath.h"
 #include "window.h"
@@ -12,7 +13,7 @@ void render_frame(void);
 
 // global variables
 Config conf;
-Mat4 proj, view_proj;
+Mat4 proj, view_proj, ortho;
 Camera *cam;
 Rubiks_Cube *rc;
 
@@ -35,6 +36,13 @@ int main(void)
         conf.default_farZ
     );
 
+    ortho = mat4_ortho(
+        0.0f, window_get_width(), 
+        0.0f, window_get_height(), 
+        conf.default_nearZ, conf.default_farZ
+    );
+    text_set_projection_matrix(ortho);
+
     cam = camera(
         conf.default_cam_target,
         conf.default_cam_distance,
@@ -47,6 +55,8 @@ int main(void)
 
     rc = rubiks_cube(&conf.rcconf);
 
+    font_load("fonts/open-sans-latin-400-normal.ttf");
+    set_active_font(0);
 
     window_main_loop(render_frame);
 
@@ -254,6 +264,9 @@ void window_size_callback(int width, int height)
 {
     mat4_perspective_resize(&proj, (float)width / (float) height);
     view_proj = mat4_mul(proj, camera_get_view_matrix(cam));
+
+    ortho = mat4_ortho(0.0f, width, 0.0f, height, conf.default_nearZ, conf.default_farZ);
+    text_set_projection_matrix(ortho);
 }
 
 void render_frame(void)
@@ -267,4 +280,5 @@ void render_frame(void)
 
     window_clear();
     rubiks_cube_draw(rc, view_proj);
+    render_text((Vec2) {30, 50}, 1.5f, color_from_hex(0xFF0000FF), "FPS: %3u", (unsigned int) (1.f / dt));
 }
