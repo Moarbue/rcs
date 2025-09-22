@@ -60,7 +60,7 @@ Cubie cubie(Cubie_Config *cconf)
 
     // allocate memory for vertices, division by 3 because face_coords[] packs the 3 different planes a face can be on
     c.vertex_count = ARRAY_LENGTH(cubie_coords) + face_count * ARRAY_LENGTH(face_coords) / 3;
-    c.verts = (Vertex *) malloc(c.vertex_count * sizeof (Vertex));
+    c.verts = (Cube_Vertex *) malloc(c.vertex_count * sizeof (Cube_Vertex));
 
     // allocate memory for indices, division by 2 because face_indices[] packs counter- and clockwise rotated faces
     c.index_count = ARRAY_LENGTH(cubie_indices) + face_count * ARRAY_LENGTH(face_indices) / 2;
@@ -82,7 +82,7 @@ Cubie cubie(Cubie_Config *cconf)
     // cubie_coords are the same for every cubie
     for (vc = 0; vc < ARRAY_LENGTH(cubie_coords); vc++) {
         // scale and offset the vertices
-        c.verts[vc] = vertex(
+        c.verts[vc] = cube_vertex(
             vec3_add(cconf->origin, vec3_scale(cubie_coords[vc], cconf->side_length)),
             cconf->face_colors[COLOR_BORDER]
         );
@@ -110,7 +110,7 @@ Cubie cubie(Cubie_Config *cconf)
 
         // face is in xy-plane so use first 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
-            c.verts[vc++] = vertex(
+            c.verts[vc++] = cube_vertex(
                 vec3_add(face_origin, scaled_face_coords[i]),
                 cconf->face_colors[COLOR_FRONT]
             );
@@ -135,7 +135,7 @@ Cubie cubie(Cubie_Config *cconf)
 
         // face is in xz-plane so use second 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
-            c.verts[vc++] = vertex(
+            c.verts[vc++] = cube_vertex(
                 vec3_add(face_origin, scaled_face_coords[i + ARRAY_LENGTH(face_coords) / 3]),
                 cconf->face_colors[COLOR_UP]
             );
@@ -160,7 +160,7 @@ Cubie cubie(Cubie_Config *cconf)
 
         // face is in yz-plane so use third 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
-            c.verts[vc++] = vertex(
+            c.verts[vc++] = cube_vertex(
                 vec3_add(face_origin, scaled_face_coords[i + 2 * ARRAY_LENGTH(face_coords) / 3]),
                 cconf->face_colors[COLOR_LEFT]
             );
@@ -185,7 +185,7 @@ Cubie cubie(Cubie_Config *cconf)
 
         // face is in xy-plane so use first 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
-            c.verts[vc++] = vertex(
+            c.verts[vc++] = cube_vertex(
                 vec3_add(face_origin, scaled_face_coords[i]),
                 cconf->face_colors[COLOR_BACK]
             );
@@ -210,7 +210,7 @@ Cubie cubie(Cubie_Config *cconf)
 
         // face is in xz-plane so use second 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
-            c.verts[vc++] = vertex(
+            c.verts[vc++] = cube_vertex(
                 vec3_add(face_origin, scaled_face_coords[i + ARRAY_LENGTH(face_coords) / 3]),
                 cconf->face_colors[COLOR_DOWN]
             );
@@ -235,7 +235,7 @@ Cubie cubie(Cubie_Config *cconf)
 
         // face is in yz-plane so use third 4 coordinates in scaled_face_coords[]
         for (i = 0; i < ARRAY_LENGTH(face_coords) / 3; i++) {
-            c.verts[vc++] = vertex(
+            c.verts[vc++] = cube_vertex(
                 vec3_add(face_origin, scaled_face_coords[i + 2 * ARRAY_LENGTH(face_coords) / 3]),
                 cconf->face_colors[COLOR_RIGHT]
             );
@@ -263,16 +263,16 @@ Cubie cubie(Cubie_Config *cconf)
     glBindVertexArray(c.vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, c.vbo);
-    glBufferData(GL_ARRAY_BUFFER, c.vertex_count * sizeof (Vertex), c.verts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, c.vertex_count * sizeof (Cube_Vertex), c.verts, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c.ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, c.index_count * sizeof (uint32_t), c.indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(VERTEX_POS, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), (void *) offsetof(Vertex, pos));
-    glEnableVertexAttribArray(VERTEX_POS);
+    glVertexAttribPointer(CUBE_VERTEX_POS, 3, GL_FLOAT, GL_FALSE, sizeof (Cube_Vertex), (void *) offsetof(Cube_Vertex, pos));
+    glEnableVertexAttribArray(CUBE_VERTEX_POS);
 
-    glVertexAttribPointer(VERTEX_COL, 4, GL_FLOAT, GL_FALSE, sizeof (Vertex), (void *) offsetof(Vertex, col));
-    glEnableVertexAttribArray(VERTEX_COL);
+    glVertexAttribPointer(CUBE_VERTEX_COL, 4, GL_FLOAT, GL_FALSE, sizeof (Cube_Vertex), (void *) offsetof(Cube_Vertex, col));
+    glEnableVertexAttribArray(CUBE_VERTEX_COL);
 
     return c;
 }

@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 typedef struct {
-    Vertex *verts;
+    Cube_Vertex *verts;
     uint64_t vertex_count;
 
     uint32_t *indices;
