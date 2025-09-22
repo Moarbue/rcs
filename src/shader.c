@@ -100,6 +100,40 @@ void shader_set_uniform_mat4(Shader_Program *prog, const char *name, float *val,
     glUniformMatrix4fv(prog->uniform_locations[i], 1, transpose, val);
 }
 
+void shader_set_uniform_color(Shader_Program *prog, const char *name, Color col)
+{
+    size_t i;
+
+    for (i = 0; i < prog->uniform_count; i++) {
+        if (strcmp(name, prog->uniform_strings[i]) == 0) break;
+    }
+
+    if (i >= prog->uniform_count) {
+        log_error("Unknown Uniform %s", name);
+    }
+
+    glUseProgram(prog->id);
+    glUniform4f(prog->uniform_locations[i], col.r, col.g, col.b, col.a);
+}
+
+void shader_set_uniform_sampler2D(Shader_Program *prog, const char *name, unsigned int textureID)
+{
+    size_t i;
+
+    for (i = 0; i < prog->uniform_count; i++) {
+        if (strcmp(name, prog->uniform_strings[i]) == 0) break;
+    }
+
+    if (i >= prog->uniform_count) {
+        log_error("Unknown Uniform %s", name);
+    }
+
+    glUseProgram(prog->id);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glUniform1i(prog->uniform_locations[i], 0);   
+}
+
 void shader_bind(Shader_Program *prog)
 {
     glUseProgram(prog->id);
