@@ -387,6 +387,12 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
 
     m = mat4_mul(view_proj, m);
 
+    // 3D Options
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+
     shader_bind(rc->prog);
 
     for (i = 0; i < rc->cubie_count; i++) {
@@ -400,6 +406,9 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
 
     glBindVertexArray(0);
     shader_unbind(rc->prog);
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 }
 
 void rubiks_cube_free(Rubiks_Cube *rc)

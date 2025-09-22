@@ -123,12 +123,6 @@ void window_init(int width, int height, const char *title, int fullscreen)
     log_info("Finished loading OpenGL functions, using version %d.%d", major_version, minor_version);
 
     window_set_fullscreen(fullscreen);
-
-    // 3D Options
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
 }
 
 void window_set_key_callback(Key_Callback callback)
