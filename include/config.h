@@ -70,21 +70,22 @@ typedef struct {
     Key_ShortCut keys[KEY_CONTROLS_COUNT];  // all the keys which perform an action, see Key_Controls for all actions
     Color background_color;                 // background color of the window
 
-    int fullscreen;             // should the window start in fullscreen mode
-    int default_window_width;   // if not fullscreen start out with this width
-    int default_window_height;  // if not fullscreen start out with this height
+    int fullscreen;                 // should the window start in fullscreen mode
+    int default_window_width;       // if not fullscreen start out with this width
+    int default_window_height;      // if not fullscreen start out with this height
+    int fps;                        // the frames per second to render the game at
 
-    float default_fov;          // default Field-Of-View, zoom-variable
-    float default_nearZ;        // default near clipping plane, z-values smaller than this are clipped
-    float default_farZ;         // default far clipping plane, z-values greater than this are clipped
+    float fov;                      // Field-Of-View, zoom-variable
+    float nearZ;                    // near clipping plane, z-values smaller than this are clipped
+    float farZ;                     // far clipping plane, z-values greater than this are clipped
 
-    Vec3  default_cam_target;               // default camera target, where the camera looks at, normally the cube origin
-    float default_cam_distance;             // default distance from camera target
-    float default_cam_xrot;                 // default camera rotation about X-Axis, rotation center is at target
-    float default_cam_yrot;                 // default camera rotation about Y-Axis, rotation center is at target
-    float default_cam_zrot;                 // default camera rotation about Z-Axis, rotation center is at target
-    float default_cam_anim_duration;        // default camera animation duration, includes position and orientation animation
-    easing_func *default_cam_anim_efunc;    // default camera easing function for animations, includes position and orientation animation
+    Vec3  cam_target;               // camera target, where the camera looks at, normally the cube origin
+    float cam_distance;             // distance from camera target
+    float cam_xrot;                 // camera rotation about X-Axis, rotation center is at target
+    float cam_yrot;                 // camera rotation about Y-Axis, rotation center is at target
+    float cam_zrot;                 // camera rotation about Z-Axis, rotation center is at target
+    float cam_anim_duration;        // camera animation duration, includes position and orientation animation
+    easing_func *cam_anim_efunc;    // camera easing function for animations, includes position and orientation animation
 
     Rubiks_Cube_Config rcconf;  // all configurations specific to the rubiks cube, look at cube_config.h for more information 
 } Config;

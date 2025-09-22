@@ -48,18 +48,19 @@ Config config_default(void)
     conf.fullscreen            = 1;
     conf.default_window_width  = 800;
     conf.default_window_height = 600;
+    conf.fps           = 60;
 
-    conf.default_fov   = rad(45.0f);
-    conf.default_nearZ = 0.01f;
-    conf.default_farZ  = 100.0f;
+    conf.fov   = rad(45.0f);
+    conf.nearZ = 0.01f;
+    conf.farZ  = 100.0f;
 
-    conf.default_cam_target        = vec3s(0.0f);
-    conf.default_cam_distance      = 3.0f;
-    conf.default_cam_xrot          = rad(30.0f);
-    conf.default_cam_yrot          = rad(45.0f);
-    conf.default_cam_zrot          = rad( 0.0f);
-    conf.default_cam_anim_duration = 0.5f;
-    conf.default_cam_anim_efunc    = ease_in_out_sine;
+    conf.cam_target        = vec3s(0.0f);
+    conf.cam_distance      = 3.0f;
+    conf.cam_xrot          = rad(30.0f);
+    conf.cam_yrot          = rad(45.0f);
+    conf.cam_zrot          = rad( 0.0f);
+    conf.cam_anim_duration = 0.5f;
+    conf.cam_anim_efunc    = ease_in_out_sine;
 
     conf.rcconf.cubie_spacer_multiplier   = 0.0f;
     conf.rcconf.face_length_multiplier    = 0.92f;
