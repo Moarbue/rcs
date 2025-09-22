@@ -66,8 +66,8 @@ void font_load(const char *font_path)
     }
 
 
-    // default font size is 24pt
-    FT_Set_Char_Size(face, 0, 24*64, 0, 0);
+    // default font size is 32pt
+    FT_Set_Char_Size(face, 0, 32*64, 0, 0);
 
     log_info("Loading font characters...");
 
