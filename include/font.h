@@ -29,6 +29,8 @@ void font_load(const char *font_path);
 void font_delete(size_t font_index);
 
 void render_text(Vec2 pos, float size, Color col, char *fmt, ...);
+int  get_text_width(float size, char *fmt, ...);
+int  get_text_height(float size, char *fmt, ...);
 void text_set_projection_matrix(Mat4 proj);
 void set_active_font(size_t font_index);
 

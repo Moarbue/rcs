@@ -2,6 +2,7 @@
 #include "ft2build.h"
 #include "freetype/freetype.h"
 #include "logging.h"
+#include "smath.h"
 #include "util.h"
 #include "vertex.h"
 
@@ -196,6 +197,69 @@ void render_text(Vec2 pos, float size, Color col, char *fmt, ...)
     glBindVertexArray(0);
     shader_unbind(tr.prog);
     glDisable(GL_BLEND);
+}
+
+// TODO: this code uses a lot of copied code, refactoring is due
+int get_text_width(float size, char *fmt, ...)
+{
+    if (tr.prog == NULL)
+        init_text_renderer();
+
+    if (tr.font_count == 0) {
+        log_error("Cannot calculate text width, no font is loaded");
+        return 0;
+    }
+
+    char buf[2048] = {0};
+    va_list args;
+    va_start(args, fmt);  
+    vsprintf(buf, fmt, args);
+    va_end(args);
+
+
+    float width;
+    width = 0.f;
+    size_t len;
+    len = strnlen(buf, 1024);
+    for (size_t i = 0; i < len; i++) {
+        Glyph g;
+        g = tr.fonts[tr.active_font].glyphs[(int) buf[i]];
+
+        width += (g.bearing.x + g.size.x + (g.advance >> 6)) * size;
+    }
+
+    return (int) width;
+}
+
+int get_text_height(float size, char *fmt, ...)
+{
+    if (tr.prog == NULL)
+        init_text_renderer();
+
+    if (tr.font_count == 0) {
+        log_error("Cannot calculate text height, no font is loaded");
+        return 0;
+    }
+
+    char buf[2048] = {0};
+    va_list args;
+    va_start(args, fmt);  
+    vsprintf(buf, fmt, args);
+    va_end(args);
+
+
+    float height;
+    height = 0.f;
+    size_t len;
+    len = strnlen(buf, 1024);
+    for (size_t i = 0; i < len; i++) {
+        Glyph g;
+        g = tr.fonts[tr.active_font].glyphs[(int) buf[i]];
+
+        height = max(height, ((g.size.y - g.bearing.y) + g.size.y) * size);
+    }
+
+    return (int) height;
 }
 
 void text_set_projection_matrix(Mat4 proj)
