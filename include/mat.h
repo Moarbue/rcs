@@ -47,4 +47,6 @@ Mat4 mat4_look(Vec3 pos, Vec3 dir, Vec3 up);
 Mat4 mat4_perspective(float fov, float aspectRatio, float znear, float zfar);
 void mat4_perspective_resize(Mat4 *m, float aspectRatio);
 
+Mat4 mat4_ortho(float left, float right, float top, float bottom, float znear, float zfar);
+
 #endif // _MAT_H_

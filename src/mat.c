@@ -397,3 +397,25 @@ void mat4_perspective_resize(Mat4 *m, float aspectRatio)
 
     m->e[0][0] = m->e[1][1] / aspectRatio;
 }
+
+Mat4 mat4_ortho(float left, float right, float top, float bottom, float znear, float zfar)
+{
+    Mat4 m;
+    float rl, tb, fn;
+
+    m = mat4_fill(0);
+
+    rl = 1.0f / (right - left);
+    tb = 1.0f / (top   - bottom);
+    fn =-1.0f / (zfar  - znear);
+
+    m.e[0][0] = 2.0f * rl;
+    m.e[1][1] = 2.0f * tb;
+    m.e[2][2] = 2.0f * fn;
+    m.e[3][0] =-(right + left)   * rl;
+    m.e[3][1] =-(top   + bottom) * tb;
+    m.e[3][2] = (zfar  + znear)  * fn;
+    m.e[3][3] = 1.0f;
+
+    return m;
+}
