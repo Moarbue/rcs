@@ -1,6 +1,19 @@
 #include "vec.h"
 #include "smath.h"
 
+// Create a Vec2 from x and y values
+Vec2 vec2(float x, float y)
+{
+    return (Vec2) {x, y};
+}
+
+// Create a Vec2 from a single value
+Vec2 vec2s(float s)
+{
+    return (Vec2) {s, s};
+}
+
+
 // Create a Vec3 from x, y and z values
 Vec3 vec3(float x, float y, float z)
 {

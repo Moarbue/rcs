@@ -2,6 +2,14 @@
 #define _VEC_H_
 
 typedef struct {
+    float x, y;
+} Vec2;
+
+Vec2 vec2(float x, float y);
+Vec2 vec2s(float s);
+
+
+typedef struct {
     float x, y, z;
 } Vec3;
 
