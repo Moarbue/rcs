@@ -1,6 +1,11 @@
 #include "vertex.h"
 
-Vertex vertex(Vec3 pos, Color col)
+Cube_Vertex cube_vertex(Vec3 pos, Color col)
 {
-    return (Vertex) {pos, col};
+    return (Cube_Vertex) {pos, col};
+}
+
+Font_Vertex font_vertex(Vec2 pos, Vec2 tex)
+{
+    return (Font_Vertex) {pos, tex};
 }
