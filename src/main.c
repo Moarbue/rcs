@@ -28,30 +28,31 @@ int main(void)
     window_set_key_callback(key_callback);
     window_set_size_callback(window_size_callback);
     window_set_clear_color(conf.background_color);
+    window_set_fps(conf.fps);
 
     proj = mat4_perspective(
-        conf.default_fov,
+        conf.fov,
         window_get_aspect_ratio(),
-        conf.default_nearZ,
-        conf.default_farZ
+        conf.nearZ,
+        conf.farZ
     );
 
     ortho = mat4_ortho(
         0.0f, window_get_width(), 
         0.0f, window_get_height(), 
-        conf.default_nearZ, conf.default_farZ
+        conf.nearZ, conf.farZ
     );
     text_set_projection_matrix(ortho);
 
     cam = camera(
-        conf.default_cam_target,
-        conf.default_cam_distance,
-        conf.default_cam_xrot,
-        conf.default_cam_yrot,
-        conf.default_cam_zrot
+        conf.cam_target,
+        conf.cam_distance,
+        conf.cam_xrot,
+        conf.cam_yrot,
+        conf.cam_zrot
     );
-    camera_set_animation_duration   (cam, CAM_ANIM_ALL, conf.default_cam_anim_duration);
-    camera_set_animation_easing_func(cam, CAM_ANIM_ALL, conf.default_cam_anim_efunc);
+    camera_set_animation_duration   (cam, CAM_ANIM_ALL, conf.cam_anim_duration);
+    camera_set_animation_easing_func(cam, CAM_ANIM_ALL, conf.cam_anim_efunc);
 
     rc = rubiks_cube(&conf.rcconf);
 
@@ -265,10 +266,12 @@ void window_size_callback(int width, int height)
     mat4_perspective_resize(&proj, (float)width / (float) height);
     view_proj = mat4_mul(proj, camera_get_view_matrix(cam));
 
-    ortho = mat4_ortho(0.0f, width, 0.0f, height, conf.default_nearZ, conf.default_farZ);
+    ortho = mat4_ortho(0.0f, width, 0.0f, height, conf.nearZ, conf.farZ);
     text_set_projection_matrix(ortho);
 }
 
+// TODO: maybe split updating and rendering into separate functions
+// and implement a function update_frame inside window.c
 void render_frame(void)
 {
     float dt;
@@ -280,5 +283,5 @@ void render_frame(void)
 
     window_clear();
     rubiks_cube_draw(rc, view_proj);
-    render_text((Vec2) {30, 50}, 1.5f, color_from_hex(0xFF0000FF), "FPS: %3u", (unsigned int) (1.f / dt));
+    render_text((Vec2) {30, 50}, 1.5f, color_from_hex(0xFF0000FF), "FPS: %3u",  (unsigned int) roundf(1.f / dt));
 }
