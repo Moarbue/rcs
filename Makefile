@@ -36,8 +36,7 @@ SHADERS := $(BIN_DIR)/$(SHADER_DIR)/cube.vert	\
 		   $(BIN_DIR)/$(SHADER_DIR)/cube.frag	\
 		   $(BIN_DIR)/$(SHADER_DIR)/font.vert	\
 		   $(BIN_DIR)/$(SHADER_DIR)/font.frag
-FONTS   := $(BIN_DIR)/$(FONT_DIR)/arial.ttf				\
-		   $(BIN_DIR)/$(FONT_DIR)/Minecrafter.Alt.ttf
+FONTS   := $(BIN_DIR)/$(FONT_DIR)/open-sans-latin-400-normal.ttf
 
 
 # Append gl.o to objects
@@ -85,4 +84,4 @@ $(BIN): $(OBJ)
 
 # Remove all .o files and executables
 clean:
-	rm -rf $(OBJ) $(BIN) $(SHADERS)
+	rm -rf $(OBJ) $(BIN) $(SHADERS) $(FONTS)
