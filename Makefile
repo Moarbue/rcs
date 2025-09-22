@@ -3,9 +3,9 @@ CFLAGS	:= -Wall -Wextra -O0 -ggdb3 -c -I./extern/include -I./include
 LDFLAGS :=
 
 ifeq ($(OS), Windows_NT)
-	LDFLAGS += -L./extern/lib -lgdi32 -lglfw3 -lfreetype
+	LDFLAGS += -L./extern/lib -lglfw3 -lopengl32 -lgdi32 -luser32 -lkernel32 -lwinmm -lfreetype
 else
-	LDFLAGS += -lm -lglfw
+	LDFLAGS += -lm -lglfw -lfreetype
 endif
 
 BIN_DIR		:= bin

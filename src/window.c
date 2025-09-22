@@ -53,6 +53,7 @@ void window_size_callback_wrapper(GLFWwindow *win, int width, int height)
     glfwPollEvents();
     glfwSwapBuffers(window.win);
 }
+
 void framebuffer_size_callback(GLFWwindow *win, int width, int height)
 {
     (void) win;
