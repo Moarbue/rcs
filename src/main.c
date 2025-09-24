@@ -43,6 +43,7 @@ int main(void)
         conf.farZ
     );
 
+    init_text_renderer(conf.font_vertex_path, conf.font_fragment_path);
     ortho = mat4_ortho(
         0.0f, window_get_width(), 
         0.0f, window_get_height(), 
@@ -68,6 +69,7 @@ int main(void)
     window_main_loop(render_frame);
 
 
+    delete_text_renderer();
     camera_free(cam);
     rubiks_cube_free(rc);
     window_close();

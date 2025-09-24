@@ -19,8 +19,41 @@ typedef struct {
 
 const size_t CHAR_COUNT = 128;
 TextRenderer tr = {0};
-void init_text_renderer(void);
 
+void init_text_renderer(const char *vertex_path, const char *fragment_path)
+{
+    log_info("Initializing text renderer...");
+
+    glGenVertexArrays(1, &tr.vao);
+    glGenBuffers(1, &tr.vbo);
+
+    glBindVertexArray(tr.vao);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, tr.vbo);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof (Font_Vertex), NULL, GL_DYNAMIC_DRAW);
+
+    glVertexAttribPointer(FONT_VERTEX_POS, 2, GL_FLOAT, GL_FALSE, sizeof (Font_Vertex), (void *) offsetof(Font_Vertex, pos));
+    glEnableVertexAttribArray(FONT_VERTEX_POS);
+
+    glVertexAttribPointer(FONT_VERTEX_TEX, 2, GL_FLOAT, GL_FALSE, sizeof (Font_Vertex), (void *) offsetof(Font_Vertex, tex));
+    glEnableVertexAttribArray(FONT_VERTEX_TEX);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    log_info("Created Vertex Array and Array Buffer for font rendering");
+
+    tr.proj = mat4_ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.01f, 100.0f);
+    tr.font_count = 0;
+    tr.active_font = 0;
+    tr.prog = shader_new(vertex_path, fragment_path);
+    if (tr.prog == NULL) {
+        log_error_and_exit(1, "Failed to load font shaders");
+    }
+
+    shader_register_uniform(tr.prog, "proj");
+    shader_register_uniform(tr.prog, "text");
+    shader_register_uniform(tr.prog, "textColor");
+}
 
 void font_load(const char *font_path)
 {
@@ -28,9 +61,6 @@ void font_load(const char *font_path)
         log_error("Maximum amount of fonts (%d) already loaded, cannot load %s", MAX_FONT_COUNT, font_path);
         return;
     }
-
-    if (tr.prog == NULL)
-        init_text_renderer();
 
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
@@ -117,9 +147,6 @@ void font_load(const char *font_path)
 
 void font_delete(size_t font_index)
 {
-    if (tr.prog == NULL)
-        init_text_renderer();
-    
     if (font_index >= tr.font_count) {
         log_error("Cannot delete font, index out of range: %zu >= %zu (font count)", font_index, tr.font_count);
         return;
@@ -137,9 +164,6 @@ void font_delete(size_t font_index)
 
 void render_text(Vec2 pos, float size, Color col, char *fmt, ...)
 {
-    if (tr.prog == NULL)
-        init_text_renderer();
-
     if (tr.font_count == 0) {
         log_error("Cannot render text, no font is loaded");
         return;
@@ -202,9 +226,6 @@ void render_text(Vec2 pos, float size, Color col, char *fmt, ...)
 // TODO: this code uses a lot of copied code, refactoring is due
 int get_text_width(float size, char *fmt, ...)
 {
-    if (tr.prog == NULL)
-        init_text_renderer();
-
     if (tr.font_count == 0) {
         log_error("Cannot calculate text width, no font is loaded");
         return 0;
@@ -233,9 +254,6 @@ int get_text_width(float size, char *fmt, ...)
 
 int get_text_height(float size, char *fmt, ...)
 {
-    if (tr.prog == NULL)
-        init_text_renderer();
-
     if (tr.font_count == 0) {
         log_error("Cannot calculate text height, no font is loaded");
         return 0;
@@ -264,9 +282,6 @@ int get_text_height(float size, char *fmt, ...)
 
 void text_set_projection_matrix(Mat4 proj)
 {
-    if (tr.prog == NULL)
-        init_text_renderer();
-    
     log_debug("Set text projection matrix");
     tr.proj = proj;
     shader_set_uniform_mat4(tr.prog, "proj", tr.proj.raw, GL_FALSE);
@@ -274,9 +289,6 @@ void text_set_projection_matrix(Mat4 proj)
 
 void set_active_font(size_t font_index)
 {
-    if (tr.prog == NULL)
-        init_text_renderer();
-    
     if (font_index >= tr.font_count) {
         log_error("Cannot activate font, index out of range: %zu >= %zu (font count)", font_index, tr.font_count);
         return;
@@ -287,38 +299,14 @@ void set_active_font(size_t font_index)
     tr.active_font = font_index;
 }
 
-void init_text_renderer(void)
+void delete_text_renderer(void)
 {
-    log_info("Initializing text renderer...");
+    shader_free(tr.prog);
 
-    glGenVertexArrays(1, &tr.vao);
-    glGenBuffers(1, &tr.vbo);
+    glDeleteVertexArrays(1, &tr.vao);
+    glDeleteBuffers(1, &tr.vbo);
 
-    glBindVertexArray(tr.vao);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, tr.vbo);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof (Font_Vertex), NULL, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(FONT_VERTEX_POS, 2, GL_FLOAT, GL_FALSE, sizeof (Font_Vertex), (void *) offsetof(Font_Vertex, pos));
-    glEnableVertexAttribArray(FONT_VERTEX_POS);
-
-    glVertexAttribPointer(FONT_VERTEX_TEX, 2, GL_FLOAT, GL_FALSE, sizeof (Font_Vertex), (void *) offsetof(Font_Vertex, tex));
-    glEnableVertexAttribArray(FONT_VERTEX_TEX);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    log_info("Created Vertex Array and Array Buffer for font rendering");
-
-    tr.proj = mat4_ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.01f, 100.0f);
-    tr.font_count = 0;
-    tr.active_font = 0;
-    // TODO: set font shaders from config
-    tr.prog = shader_new("shaders/font.vert", "shaders/font.frag");
-    if (tr.prog == NULL) {
-        log_error_and_exit(1, "Failed to load font shaders");
+    for (size_t i = 0; i < tr.font_count; i++) {
+        free(tr.fonts[i].glyphs);
     }
-
-    shader_register_uniform(tr.prog, "proj");
-    shader_register_uniform(tr.prog, "text");
-    shader_register_uniform(tr.prog, "textColor");
 }

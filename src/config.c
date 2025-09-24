@@ -90,5 +90,8 @@ Config config_default(void)
     conf.rcconf.face_colors[COLOR_DOWN]   = color_from_hex(0xFFFFFFFF);
     conf.rcconf.face_colors[COLOR_RIGHT]  = color_from_hex(0x009B48FF);
 
+    conf.font_vertex_path   = "./shaders/font.vert";
+    conf.font_fragment_path = "./shaders/font.frag";
+
     return conf;
 }

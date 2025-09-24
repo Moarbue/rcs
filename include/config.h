@@ -88,6 +88,9 @@ typedef struct {
     easing_func *cam_anim_efunc;    // camera easing function for animations, includes position and orientation animation
 
     Rubiks_Cube_Config rcconf;  // all configurations specific to the rubiks cube, look at cube_config.h for more information 
+
+    char *font_vertex_path;     // path to vertex shader of text renderer
+    char *font_fragment_path;   // path to fragment shader of text renderer
 } Config;
 
 Config config_default(void);
