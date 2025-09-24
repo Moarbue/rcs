@@ -12,6 +12,7 @@ typedef enum {
     KEY_WINDOW_CLOSE,
     KEY_TOGGLE_FULLSCREEN,
     // cube controls
+    KEY_RESET_CUBE_ROTATION,
     KEY_ROTATE_CUBE_POS_90_X,
     KEY_ROTATE_CUBE_NEG_90_X,
     KEY_ROTATE_CUBE_POS_90_Y,
@@ -91,6 +92,8 @@ typedef struct {
 
     char *font_vertex_path;     // path to vertex shader of text renderer
     char *font_fragment_path;   // path to fragment shader of text renderer
+
+    float text_fading_duration; // duration of the text fading animation
 } Config;
 
 Config config_default(void);

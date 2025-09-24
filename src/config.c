@@ -9,6 +9,7 @@ Config config_default(void)
 
     conf.keys[KEY_WINDOW_CLOSE]         = (Key_ShortCut){KEY_ESCAPE, 0};
     conf.keys[KEY_TOGGLE_FULLSCREEN]    = (Key_ShortCut){KEY_F11,    0};
+    conf.keys[KEY_RESET_CUBE_ROTATION]  = (Key_ShortCut){KEY_Q,      0};
     conf.keys[KEY_ROTATE_CUBE_POS_90_X] = (Key_ShortCut){KEY_3,      0};
     conf.keys[KEY_ROTATE_CUBE_NEG_90_X] = (Key_ShortCut){KEY_4,      0};
     conf.keys[KEY_ROTATE_CUBE_POS_90_Y] = (Key_ShortCut){KEY_1,      0};
@@ -92,6 +93,8 @@ Config config_default(void)
 
     conf.font_vertex_path   = "./shaders/font.vert";
     conf.font_fragment_path = "./shaders/font.frag";
+
+    conf.text_fading_duration = 1.0f;
 
     return conf;
 }
