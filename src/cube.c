@@ -10,6 +10,8 @@ void rotate_matrix_cw (uint64_t *a, uint64_t dimension, uint64_t xstride, uint64
 void rotate_matrix_ccw(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index);
 void rotate_matrix_180(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64_t ystride, uint64_t start_index);
 
+Rubiks_Cube_Face get_face_from_rotation(Quat rot, Rubiks_Cube_Face face);
+
 Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
 {
     Rubiks_Cube *rc;
@@ -58,6 +60,13 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
         rubiks_cube_free(rc);
         return NULL;
     }
+
+    rc->faces[FACE_FRONT] = FACE_FRONT;
+    rc->faces[FACE_UP]    = FACE_UP;
+    rc->faces[FACE_LEFT]  = FACE_LEFT;
+    rc->faces[FACE_BACK]  = FACE_BACK;
+    rc->faces[FACE_DOWN]  = FACE_DOWN;
+    rc->faces[FACE_RIGHT] = FACE_RIGHT;
 
     rc->pos   = rcconf->origin;
     rc->ori   = quat_identity();
@@ -188,84 +197,75 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
     // 90 degrees is counterclock-wise etc.
     r = M_PI_2 * (float)(rot+1);
 
-    switch (face) {
-        case FACE_FRONT:
-            if (slice >= rc->d) {
-                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Front rotation", slice, rc->d);
-                return;
-            }
-            start_index = slice*rc->w*rc->h;
-            a = vec3(0.0f, 0.0f, 1.0f);
-            width   = rc->w;
-            height  = rc->h;
-            xstride = 1;
-            ystride = rc->w;
-        break;
-
-        case FACE_UP:
-            if (slice >= rc->h) {
-                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Up rotation", slice, rc->h);
-                return;
-            }
-            start_index = (rc->d-1)*rc->h*rc->w + slice*rc->w;
-            a = vec3(0.0f, 1.0f, 0.0f);
-            width   = rc->w;
-            height  = rc->d;
-            xstride = 1;
-            ystride = -rc->w*rc->h;
-        break;
-
-        case FACE_LEFT:
-            if (slice >= rc->w) {
-                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Left rotation", slice, rc->w);
-                return;
-            }
-            start_index = (rc->d-1)*rc->h*rc->w + slice;
-            a = vec3(-1.0f, 0.0f, 0.0f);
-            width   = rc->d;
-            height  = rc->h;
-            xstride = -rc->w*rc->h;
-            ystride = rc->w;
-        break;
-
-        case FACE_BACK:
-            if (slice >= rc->d) {
-                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Back rotation", slice, rc->d);
-                return;
-            }
-            start_index = (rc->d-1-slice)*rc->h*rc->w + (rc->w-1);
-            a = vec3(0.0f, 0.0f, -1.0f);
-            width   = rc->w;
-            height  = rc->h;
-            xstride = -1;
-            ystride = rc->w;
-        break;
-
-        case FACE_DOWN:
-            if (slice >= rc->h) {
-                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Down rotation", slice, rc->h);
-                return;
-            }
-            start_index = (rc->h-1-slice)*(rc->w);
-            a = vec3(0.0f, -1.0f, 0.0f);
-            width   = rc->w;
-            height  = rc->d;
-            xstride = 1;
-            ystride = rc->w*rc->h;
-        break;
-
-        case FACE_RIGHT:
-            if (slice >= rc->w) {
-                log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Right rotation", slice, rc->w);
-                return;
-            }
-            start_index = (rc->w-1-slice);
-            a = vec3(1.0f, 0.0f, 0.0f);
-            width   = rc->d;
-            height  = rc->h;
-            xstride = rc->w*rc->h;
-            ystride = rc->w;
-        break;
+    if (rc->faces[face] == FACE_FRONT) {
+        if (slice >= rc->d) {
+            log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Front rotation", slice, rc->d);
+            return;
+        }
+        start_index = slice*rc->w*rc->h;
+        a = vec3(0.0f, 0.0f, 1.0f);
+        width   = rc->w;
+        height  = rc->h;
+        xstride = 1;
+        ystride = rc->w;
+    } else if (rc->faces[face] == FACE_UP) {
+        if (slice >= rc->h) {
+            log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Up rotation", slice, rc->h);
+            return;
+        }
+        start_index = (rc->d-1)*rc->h*rc->w + slice*rc->w;
+        a = vec3(0.0f, 1.0f, 0.0f);
+        width   = rc->w;
+        height  = rc->d;
+        xstride = 1;
+        ystride = -rc->w*rc->h;
+    } else if (rc->faces[face] == FACE_LEFT) {
+        if (slice >= rc->w) {
+            log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Left rotation", slice, rc->w);
+            return;
+        }
+        start_index = (rc->d-1)*rc->h*rc->w + slice;
+        a = vec3(-1.0f, 0.0f, 0.0f);
+        width   = rc->d;
+        height  = rc->h;
+        xstride = -rc->w*rc->h;
+        ystride = rc->w;
+    } else if (rc->faces[face] == FACE_BACK) {
+        if (slice >= rc->d) {
+            log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Back rotation", slice, rc->d);
+            return;
+        }
+        start_index = (rc->d-1-slice)*rc->h*rc->w + (rc->w-1);
+        a = vec3(0.0f, 0.0f, -1.0f);
+        width   = rc->w;
+        height  = rc->h;
+        xstride = -1;
+        ystride = rc->w;
+    } else if (rc->faces[face] == FACE_DOWN) {
+        if (slice >= rc->h) {
+            log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Down rotation", slice, rc->h);
+            return;
+        }
+        start_index = (rc->h-1-slice)*(rc->w);
+        a = vec3(0.0f, -1.0f, 0.0f);
+        width   = rc->w;
+        height  = rc->d;
+        xstride = 1;
+        ystride = rc->w*rc->h;
+    } else if (rc->faces[face] == FACE_RIGHT) {
+        if (slice >= rc->w) {
+            log_warning("Slice index is out of range %" PRIu64 " > %" PRIu64 ", skipping Right rotation", slice, rc->w);
+            return;
+        }
+        start_index = (rc->w-1-slice);
+        a = vec3(1.0f, 0.0f, 0.0f);
+        width   = rc->d;
+        height  = rc->h;
+        xstride = rc->w*rc->h;
+        ystride = rc->w;
+    } else {
+        log_error("Unknown face, cannot perform rotation");
+        return;
     }
 
     for (y = 0; y < height; y++) {
@@ -278,44 +278,32 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
         }
     }
 
-    switch (face) {
-        case FACE_FRONT:
-            start_index = slice*rc->max_length*rc->max_length;
-            xstride = 1;
-            ystride = rc->max_length;
-        break;
-
-        case FACE_UP:
-            start_index = (rc->max_length-1)*rc->max_length*rc->max_length + slice*rc->max_length;
-            xstride = 1;
-            ystride = -rc->max_length*rc->max_length;
-        break;
-
-        case FACE_LEFT:
-            start_index = (rc->max_length-1)*rc->max_length*rc->max_length + slice;
-            xstride = -rc->max_length*rc->max_length;
-            ystride = rc->max_length;
-        break;
-
-        case FACE_BACK:
-            start_index = (rc->max_length-1-slice)*rc->max_length*rc->max_length + (rc->max_length-1);
-            xstride = -1;
-            ystride = rc->max_length;
-        break;
-
-        case FACE_DOWN:
-            start_index = (rc->max_length-1-slice)*(rc->max_length);
-            xstride = 1;
-            ystride = rc->max_length*rc->max_length;
-        break;
-
-        case FACE_RIGHT:
-            start_index = (rc->max_length-1-slice);
-            xstride = rc->max_length*rc->max_length;
-            ystride = rc->max_length;
-        break;
-    }
-
+    if (rc->faces[face] == FACE_FRONT) {
+        start_index = slice*rc->max_length*rc->max_length;
+        xstride = 1;
+        ystride = rc->max_length;
+    } else if (rc->faces[face] == FACE_UP) {
+        start_index = (rc->max_length-1)*rc->max_length*rc->max_length + slice*rc->max_length;
+        xstride = 1;
+        ystride = -rc->max_length*rc->max_length;
+    } else if (rc->faces[face] == FACE_LEFT) {
+        start_index = (rc->max_length-1)*rc->max_length*rc->max_length + slice;
+        xstride = -rc->max_length*rc->max_length;
+        ystride = rc->max_length;
+    } else if (rc->faces[face] == FACE_BACK) {
+        start_index = (rc->max_length-1-slice)*rc->max_length*rc->max_length + (rc->max_length-1);
+        xstride = -1;
+        ystride = rc->max_length;
+    } else if (rc->faces[face] == FACE_DOWN) {
+        start_index = (rc->max_length-1-slice)*(rc->max_length);
+        xstride = 1;
+        ystride = rc->max_length*rc->max_length;
+    } else if (rc->faces[face] == FACE_RIGHT) {
+        start_index = (rc->max_length-1-slice);
+        xstride = rc->max_length*rc->max_length;
+        ystride = rc->max_length;
+    } 
+        
     switch (rot) {
         case ROTATION_CCW:
             rotate_matrix_ccw(rc->cubie_indices, rc->max_length, xstride, ystride, start_index);
@@ -333,12 +321,24 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
 
 void rubiks_cube_rotate(Rubiks_Cube *rc, Vec3 axis, float angle)
 {
+    Quat end;
+    end = quat_mul(rc->ori_anim.data.q.end, quat_from_axis_angle(axis, angle));
+
     rc->ori_anim = animate_quaternion(
         &rc->ori,
-        quat_mul(rc->ori_anim.data.q.end, quat_from_axis_angle(axis, angle)),
+        end,
         rc->ori_anim.duration,
         rc->ori_anim.efunc
     );
+
+    rc->faces[FACE_FRONT] = get_face_from_rotation(end, FACE_FRONT);
+    rc->faces[FACE_UP]    = get_face_from_rotation(end, FACE_UP);
+    rc->faces[FACE_LEFT]  = get_face_from_rotation(end, FACE_LEFT);
+    
+    // faster than calling get_face_from_rotation six times, since these sides are mirrored
+    rc->faces[FACE_BACK]  = (rc->faces[FACE_FRONT] + 3) % 6;
+    rc->faces[FACE_DOWN]  = (rc->faces[FACE_UP]    + 3) % 6;
+    rc->faces[FACE_RIGHT] = (rc->faces[FACE_LEFT]  + 3) % 6;
 }
 
 void rubiks_cube_scale(Rubiks_Cube *rc, float scale)
@@ -527,4 +527,55 @@ void rotate_matrix_180(uint64_t *a, uint64_t dimension, uint64_t xstride, uint64
         a[i1] = a[i2];
         a[i2] = tmp;
     }
+}
+
+Rubiks_Cube_Face get_face_from_rotation(Quat rot, Rubiks_Cube_Face face)
+{
+    Vec3 f, u, l, b, d, r, face_normal;
+    float df, du, dl, db, dd, dr;
+
+    switch (face) {
+        case FACE_FRONT: face_normal = vec3( 0.0f, 0.0f, 1.0f); break;
+        case FACE_UP:    face_normal = vec3( 0.0f, 1.0f, 0.0f); break;
+        case FACE_LEFT:  face_normal = vec3(-1.0f, 0.0f, 0.0f); break;
+        case FACE_BACK:  face_normal = vec3( 0.0f, 0.0f,-1.0f); break;
+        case FACE_DOWN:  face_normal = vec3( 0.0f,-1.0f, 0.0f); break;
+        case FACE_RIGHT: face_normal = vec3( 1.0f, 0.0f, 0.0f); break;
+    }
+
+    f = vec3( 0.0f, 0.0f, 1.0f);
+    u = vec3( 0.0f, 1.0f, 0.0f);
+    l = vec3(-1.0f, 0.0f, 0.0f);
+    b = vec3( 0.0f, 0.0f,-1.0f);
+    d = vec3( 0.0f,-1.0f, 0.0f);
+    r = vec3( 1.0f, 0.0f, 0.0f);
+
+    // rotate according to rotation quaternion
+    f = quat_rotatev3(f, rot);
+    u = quat_rotatev3(u, rot);
+    l = quat_rotatev3(l, rot);
+    b = quat_rotatev3(b, rot);
+    d = quat_rotatev3(d, rot);
+    r = quat_rotatev3(r, rot);
+
+    // compare which rotated vector is closest to actual face normal vector
+    df = vec3_dot(f, face_normal);
+    du = vec3_dot(u, face_normal);
+    dl = vec3_dot(l, face_normal);
+    db = vec3_dot(b, face_normal);
+    dd = vec3_dot(d, face_normal);
+    dr = vec3_dot(r, face_normal);
+
+    if (df > du && df > dl && df > db && df > dd && df > dr)
+        return FACE_FRONT;
+    if (du > dl && du > db && du > dd && du > dr)
+        return FACE_UP;
+    if (dl > db && dl > dd && dl > dr)
+        return FACE_LEFT;
+    if (db > dd && db > dr)
+        return FACE_BACK;
+    if (dd > dr)
+        return FACE_DOWN;
+
+    return FACE_RIGHT;
 }

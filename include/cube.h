@@ -40,6 +40,9 @@ typedef struct {
     float mcooldown;
     float mc;
 
+    // rotation of the whole cube changes faces
+    Rubiks_Cube_Face faces[6];
+
     Vec3 pos;
     Quat ori;
     Animation ori_anim;
