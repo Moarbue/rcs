@@ -86,6 +86,8 @@ Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf)
     rc->ori_anim.efunc = rcconf->ori_efunc;
     rc->ori_anim.data.q.end = quat_identity();
 
+    rc->reset = 0;
+
     rc->prog = shader_new(rcconf->vertex_path, rcconf->fragment_path);
     if (rc->prog == NULL) {
         rubiks_cube_free(rc);
@@ -191,6 +193,7 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
     float r;
     uint64_t start_index, width, height, x, y, xstride, ystride, ci;
 
+    if (rc->reset == 1) return;
     if (rc->mc < rc->mcooldown) return;
     rc->mc = 0.0f;
 
@@ -322,6 +325,9 @@ void rubiks_cube_rotate_slice(Rubiks_Cube *rc, Rubiks_Cube_Face face, Rubiks_Cub
 void rubiks_cube_rotate(Rubiks_Cube *rc, Vec3 axis, float angle)
 {
     Quat end;
+
+    if (rc->reset == 1) return;
+
     end = quat_mul(rc->ori_anim.data.q.end, quat_from_axis_angle(axis, angle));
 
     rc->ori_anim = animate_quaternion(
@@ -374,6 +380,10 @@ void rubiks_cube_update(Rubiks_Cube *rc, float dt)
     update_animation(&rc->wobble_anim, dt);
     update_animation(&rc->ori_anim, dt);
     update_animation(&rc->scale_anim, dt);
+
+    if (!animation_is_running(&rc->ori_anim) && !animation_is_running(&rc->cubies[0].a) && rc->reset == 1) {
+        rc->reset = 0;
+    }
 }
 
 void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
@@ -409,6 +419,51 @@ void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj)
 
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
+}
+
+void rubiks_cube_reset_rotation(Rubiks_Cube *rc)
+{
+    uint64_t w, h, d, ci, i;
+
+    if (rc->reset == 1) return;
+
+    rc->reset = 1;
+
+    rc->ori_anim = animate_quaternion(
+        &rc->ori,
+        quat_identity(),
+        rc->ori_anim.duration,
+        rc->ori_anim.efunc
+    );
+
+    for (i = 0; i < rc->max_length*rc->max_length*rc->max_length; i++)
+        rc->cubie_indices[i] = rc->cubie_count;
+
+    ci = 0;
+    for (d = 0; d < rc->d; d++) {
+        for (h = 0; h < rc->h; h++) {
+            for (w = 0; w < rc->w; w++) {
+
+                // Check if cubie is visible
+                if (w > 0 && w < rc->w - 1 &&
+                    h > 0 && h < rc->h - 1 &&
+                    d > 0 && d < rc->d - 1) {
+                      
+                    continue;
+                }
+
+                i = d*rc->h*rc->w + h*rc->w + w;
+                rc->cubie_indices[i] = ci;
+                rc->cubies[ci].a = animate_quaternion(
+                    &rc->cubies[ci].ori,
+                    quat_identity(),
+                    rc->cubies[ci].a.duration,
+                    rc->cubies[ci].a.efunc
+                );
+                ci++;
+            }
+        }
+    }
 }
 
 void rubiks_cube_free(Rubiks_Cube *rc)

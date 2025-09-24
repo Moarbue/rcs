@@ -54,6 +54,8 @@ typedef struct {
     Animation wobble_anim;
 
     Shader_Program *prog;
+
+    int reset;
 } Rubiks_Cube;
 
 Rubiks_Cube *rubiks_cube(Rubiks_Cube_Config *rcconf);
@@ -65,6 +67,7 @@ void rubiks_cube_rotate(Rubiks_Cube *rc, Vec3 axis, float angle);
 void rubiks_cube_scale(Rubiks_Cube *rc, float scale);
 void rubiks_cube_update(Rubiks_Cube *rc, float dt);
 void rubiks_cube_draw(Rubiks_Cube *rc, Mat4 view_proj);
+void rubiks_cube_reset_rotation(Rubiks_Cube *rc);
 void rubiks_cube_free(Rubiks_Cube *rc);
 
 #endif // _CUBE_H_
